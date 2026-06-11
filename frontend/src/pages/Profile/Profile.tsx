@@ -70,11 +70,11 @@ const Profile = () => {
 
   const menuItems = [
     { icon: '📦', label: '我的订单', link: '/orders', count: recentOrders.length },
-    { icon: '📍', label: '收货地址', link: '#addresses', count: addresses.length },
-    { icon: '❤️', label: '我的收藏', link: '#', count: favoriteCount },
-    { icon: '🎫', label: '优惠券', link: '#coupons', count: coupons.length },
+    { icon: '📍', label: '收货地址', link: '/addresses', count: addresses.length },
+    { icon: '❤️', label: '我的收藏', link: '/favorites', count: favoriteCount },
+    { icon: '🎫', label: '优惠券', link: '/coupons', count: coupons.length },
     { icon: '⭐', label: '我的评价', link: '#', count: 5 },
-    { icon: '💬', label: '消息通知', link: '#notifications', count: notifications.filter((item) => !item.read).length },
+    { icon: '💬', label: '消息通知', link: '/notifications', count: notifications.filter((item) => !item.read).length },
   ];
 
   return (

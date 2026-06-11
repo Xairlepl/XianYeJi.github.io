@@ -12,6 +12,10 @@ import Cart from './pages/Cart/Cart';
 import Login from './pages/Login/Login';
 import Profile from './pages/Profile/Profile';
 import Orders from './pages/Orders/Orders';
+import Addresses from './pages/Addresses/Addresses';
+import Favorites from './pages/Favorites/Favorites';
+import Coupons from './pages/Coupons/Coupons';
+import Notifications from './pages/Notifications/Notifications';
 import NotFound from './pages/NotFound/NotFound';
 import './index.css';
 
@@ -39,6 +43,10 @@ function App() {
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/orders" element={<Orders />} />
+                  <Route path="/addresses" element={<Addresses />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/coupons" element={<Coupons />} />
+                  <Route path="/notifications" element={<Notifications />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />

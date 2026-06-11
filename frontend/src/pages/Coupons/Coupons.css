@@ -1,0 +1,97 @@
+.coupons-page {
+  min-height: 60vh;
+}
+
+.coupons-list {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.coupon-card {
+  display: flex;
+  background: linear-gradient(135deg, var(--color-accent-50) 0%, white 100%);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px dashed var(--color-accent-300);
+  padding: var(--space-5);
+  gap: var(--space-4);
+  transition: all var(--transition-base);
+}
+
+.coupon-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.coupon-card.expired {
+  opacity: 0.5;
+  background: var(--color-neutral-100);
+  border-color: var(--color-neutral-300);
+}
+
+.coupon-amount {
+  display: flex;
+  align-items: baseline;
+  color: var(--color-accent-700);
+  font-weight: 700;
+}
+
+.coupon-currency {
+  font-size: var(--text-xl);
+}
+
+.coupon-value {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.coupon-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.coupon-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-neutral-800);
+}
+
+.coupon-condition {
+  font-size: var(--text-sm);
+  color: var(--color-neutral-600);
+}
+
+.coupon-expire {
+  font-size: var(--text-xs);
+  color: var(--color-neutral-500);
+}
+
+.coupon-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.status-badge.available {
+  background: var(--color-success);
+  color: white;
+}
+
+.status-badge.used {
+  background: var(--color-neutral-400);
+  color: white;
+}
+
+.status-badge.expired {
+  background: var(--color-error);
+  color: white;
+}
