@@ -38,8 +38,8 @@ const Header = () => {
         <Link to="/" className="header-logo" id="logo-link">
           <span className="logo-icon">🌾</span>
           <div className="logo-text">
-            <span className="logo-name">龙野农品</span>
-            <span className="logo-slogan">新鲜直达 · 品质保障</span>
+            <span className="logo-name">鲜野集</span>
+            <span className="logo-slogan">原生态 · 产地直发</span>
           </div>
         </Link>
 

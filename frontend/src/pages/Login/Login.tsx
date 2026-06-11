@@ -45,12 +45,12 @@ const Login = () => {
         <div className="login-visual">
           <div className="login-visual-content">
             <span className="login-visual-icon">🌾</span>
-            <h2>龙野农品</h2>
-            <p>新鲜直达 · 品质保障</p>
+            <h2>鲜野集</h2>
+            <p>原生态农产品 · 产地直发</p>
             <div className="login-visual-features">
               <div className="visual-feature">
-                <span>🍎</span>
-                <span>精选全国优质农产品</span>
+                <span>🌱</span>
+                <span>精选全国原生态农产品</span>
               </div>
               <div className="visual-feature">
                 <span>🚚</span>
@@ -58,7 +58,7 @@ const Login = () => {
               </div>
               <div className="visual-feature">
                 <span>💰</span>
-                <span>新人注册享受专属优惠</span>
+                <span>新人注册享专属优惠</span>
               </div>
             </div>
           </div>
@@ -68,7 +68,7 @@ const Login = () => {
         <div className="login-form-wrapper">
           <div className="login-form-header">
             <h1>{isLogin ? '欢迎回来' : '创建账号'}</h1>
-            <p>{isLogin ? '登录您的龙野农品账号' : '注册成为龙野农品会员'}</p>
+            <p>{isLogin ? '登录您的鲜野集账号' : '注册成为鲜野集会员'}</p>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>

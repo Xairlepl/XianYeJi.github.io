@@ -10,15 +10,15 @@ const Footer = () => {
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
               <span className="logo-icon">🌾</span>
-              <span className="logo-name">龙野农品</span>
+              <span className="logo-name">鲜野集</span>
             </Link>
             <p className="footer-desc">
-              致力于连接优质农产品产地与消费者，让每一份新鲜直达您的餐桌。
-              我们严选全国优质农产品，保障品质，守护健康。
+              连接优质农产地与消费者，精选全国原生态农产品。
+              我们坚持产地直发，保障品质，让每一份新鲜直达您的餐桌。
             </p>
             <div className="footer-contact">
-              <span>📞 400-888-9999</span>
-              <span>📧 service@longye.com</span>
+              <span>📞 400-668-8866</span>
+              <span>📧 hello@freshwild.cn</span>
             </div>
           </div>
 
@@ -52,11 +52,11 @@ const Footer = () => {
 
         {/* Bottom */}
         <div className="footer-bottom">
-          <p>© 2026 龙野农品 LongYe. All rights reserved.</p>
+          <p>© 2026 鲜野集 FreshWild. All rights reserved.</p>
           <div className="footer-badges">
             <span className="trust-badge">🛡️ 品质保障</span>
-            <span className="trust-badge">🚚 新鲜直达</span>
-            <span className="trust-badge">💰 售后无忧</span>
+            <span className="trust-badge">🌱 原生态</span>
+            <span className="trust-badge">🚚 产地直发</span>
           </div>
         </div>
       </div>

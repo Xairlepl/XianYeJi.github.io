@@ -25,7 +25,7 @@ const pickPalette = (name: string) => {
   return palette[seed % palette.length];
 };
 
-export const getProductFallbackImage = (name = '龙野农品') => {
+export const getProductFallbackImage = (name = '鲜野集') => {
   const safeName = name.slice(0, 14);
   const [bg, fg] = pickPalette(name);
   const icon = pickIcon(name);
@@ -35,7 +35,7 @@ export const getProductFallbackImage = (name = '龙野农品') => {
       <circle cx="320" cy="250" r="120" fill="#ffffff" opacity="0.72"/>
       <text x="320" y="288" text-anchor="middle" font-family="Arial, sans-serif" font-size="112" font-weight="700" fill="${fg}">${icon}</text>
       <text x="320" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1f2937">${safeName}</text>
-      <text x="320" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#6b7280">龙野农品 · 模拟商品图</text>
+      <text x="320" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#6b7280">鲜野集 · 模拟商品图</text>
     </svg>
   `;
 
