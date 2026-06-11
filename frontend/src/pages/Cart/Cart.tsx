@@ -1,70 +1,62 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { mockApi } from '../../services/mockApi';
-import type { CartItem } from '../../types';
-import { setProductImageFallback } from '../../utils/imageFallback';
+import { useCartStore } from '@/store/cartStore';
+import { useToastStore } from '@/store/toastStore';
+import { mockApi } from '@/services/mockApi';
+import { setProductImageFallback } from '@/utils/imageFallback';
 import './Cart.css';
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [items, setItems] = useState<CartItem[]>([]);
+  const { items, init, updateQuantity, toggleCheck, toggleAll, removeItem } = useCartStore();
+  const showToast = useToastStore((state) => state.show);
   const [loading, setLoading] = useState(true);
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    let mounted = true;
-    mockApi.getCart().then((cartItems) => {
-      if (!mounted) return;
-      setItems(cartItems);
-      setLoading(false);
-    });
+    init().then(() => setLoading(false));
+  }, [init]);
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const toggleCheck = async (id: number) => {
+  const handleToggleCheck = async (id: number) => {
     const current = items.find((item) => item.id === id);
     if (!current) return;
     setPendingId(id);
-    setItems(await mockApi.toggleCartItem(id, !current.checked));
+    await toggleCheck(id, !current.checked);
     setPendingId(null);
   };
 
-  const toggleAll = async () => {
+  const handleToggleAll = async () => {
     const allChecked = items.every((item) => item.checked);
     setPendingId(-1);
-    setItems(await mockApi.toggleAllCartItems(!allChecked));
+    await toggleAll(!allChecked);
     setPendingId(null);
   };
 
-  const updateQuantity = async (id: number, delta: number) => {
+  const handleUpdateQuantity = async (id: number, delta: number) => {
     const current = items.find((item) => item.id === id);
     if (!current) return;
     setPendingId(id);
-    setItems(await mockApi.updateCartItem(id, current.quantity + delta));
+    await updateQuantity(id, current.quantity + delta);
     setPendingId(null);
   };
 
-  const removeItem = async (id: number) => {
+  const handleRemoveItem = async (id: number) => {
     setPendingId(id);
-    setItems(await mockApi.removeCartItem(id));
+    await removeItem(id);
     setPendingId(null);
-    setMessage('已从购物车删除商品');
+    showToast('已从购物车删除商品', 'success');
   };
 
   const checkout = async () => {
     setCheckoutLoading(true);
-    setMessage('');
 
     try {
       await mockApi.checkoutCart(checkedItems.map((item) => item.id));
+      showToast('订单创建成功', 'success');
       navigate('/orders');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '结算失败');
+      showToast(error instanceof Error ? error.message : '结算失败', 'error');
       setCheckoutLoading(false);
     }
   };
@@ -92,11 +84,10 @@ const Cart = () => {
         </div>
       ) : (
         <>
-          {message && <div className="cart-message">{message}</div>}
           {/* Cart Header */}
           <div className="cart-header glass">
             <label className="cart-check-all">
-              <input type="checkbox" checked={allChecked} onChange={toggleAll} disabled={pendingId !== null} />
+              <input type="checkbox" checked={allChecked} onChange={() => handleToggleAll()} disabled={pendingId !== null} />
               <span>全选</span>
             </label>
             <span className="cart-col-info">商品信息</span>
@@ -118,7 +109,7 @@ const Cart = () => {
                   <input
                     type="checkbox"
                     checked={item.checked}
-                    onChange={() => toggleCheck(item.id)}
+                    onChange={() => handleToggleCheck(item.id)}
                     disabled={pendingId !== null}
                   />
                 </label>
@@ -143,7 +134,7 @@ const Cart = () => {
                   <div className="quantity-control">
                     <button
                       className="qty-btn"
-                      onClick={() => updateQuantity(item.id, -1)}
+                      onClick={() => handleUpdateQuantity(item.id, -1)}
                       disabled={item.quantity <= 1 || pendingId !== null}
                     >
                       −
@@ -151,7 +142,7 @@ const Cart = () => {
                     <span className="qty-value">{item.quantity}</span>
                     <button
                       className="qty-btn"
-                      onClick={() => updateQuantity(item.id, 1)}
+                      onClick={() => handleUpdateQuantity(item.id, 1)}
                       disabled={pendingId !== null || item.quantity >= item.product.stock}
                     >
                       +
@@ -163,7 +154,7 @@ const Cart = () => {
                 </div>
                 <button
                   className="cart-item-remove"
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => handleRemoveItem(item.id)}
                   title="删除"
                   disabled={pendingId !== null}
                 >
@@ -177,7 +168,7 @@ const Cart = () => {
           <div className="cart-footer glass">
             <div className="cart-footer-left">
               <label className="cart-check-all">
-                <input type="checkbox" checked={allChecked} onChange={toggleAll} disabled={pendingId !== null} />
+                <input type="checkbox" checked={allChecked} onChange={handleToggleAll} disabled={pendingId !== null} />
                 <span>全选</span>
               </label>
               <span className="cart-selected">

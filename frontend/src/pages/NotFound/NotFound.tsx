@@ -1,0 +1,20 @@
+import { Link } from 'react-router-dom';
+
+const NotFound = () => {
+  return (
+    <main className="container section" style={{ textAlign: 'center', padding: '5rem 1rem' }}>
+      <div className="empty-state">
+        <span className="empty-icon" style={{ fontSize: '5rem' }}>🔍</span>
+        <h1 style={{ fontSize: '3rem', margin: '1rem 0 0.5rem' }}>404</h1>
+        <p style={{ color: 'var(--color-neutral-600)', fontSize: 'var(--text-lg)' }}>
+          页面不存在或已被删除
+        </p>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '2rem' }}>
+          返回首页
+        </Link>
+      </div>
+    </main>
+  );
+};
+
+export default NotFound;

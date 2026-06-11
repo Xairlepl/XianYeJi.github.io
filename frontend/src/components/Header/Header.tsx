@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { mockApi } from '../../services/mockApi';
+import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import './Header.css';
 
 const Header = () => {
@@ -8,7 +9,10 @@ const Header = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+
+  const cartCount = useCartStore((state) => state.count);
+  const { user, isAuthenticated } = useAuthStore();
+  const refreshCart = useCartStore((state) => state.refreshCount);
 
   const navLinks = [
     { path: '/', label: '首页' },
@@ -18,14 +22,8 @@ const Header = () => {
   ];
 
   useEffect(() => {
-    let mounted = true;
-    mockApi.getCartSummary().then((summary) => {
-      if (mounted) setCartCount(summary.count);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [location.pathname]);
+    refreshCart();
+  }, [location.pathname, refreshCart]);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -94,9 +92,15 @@ const Header = () => {
               <circle cx="12" cy="7" r="4" />
             </svg>
           </Link>
-          <Link to="/login" className="btn btn-primary btn-sm header-login-btn" id="login-btn">
-            登录
-          </Link>
+          {isAuthenticated && user ? (
+            <span className="header-username" title={user.username}>
+              {user.username}
+            </span>
+          ) : (
+            <Link to="/login" className="btn btn-primary btn-sm header-login-btn" id="login-btn">
+              登录
+            </Link>
+          )}
           <button
             className="mobile-menu-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

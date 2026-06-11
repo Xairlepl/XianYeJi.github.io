@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { mockApi } from '../../services/mockApi';
-import ProductCard from '../../components/ProductCard/ProductCard';
-import type { Product, ProductReview } from '../../types';
-import { setProductImageFallback } from '../../utils/imageFallback';
+import { mockApi } from '@/services/mockApi';
+import { useCartStore } from '@/store/cartStore';
+import { useToastStore } from '@/store/toastStore';
+import ProductCard from '@/components/ProductCard/ProductCard';
+import type { Product, ProductReview } from '@/types';
+import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductDetail.css';
 
 const ProductDetail = () => {
@@ -16,12 +18,13 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState<'detail' | 'origin' | 'reviews'>('detail');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<'cart' | 'buy' | null>(null);
-  const [message, setMessage] = useState('');
+
+  const addToCart = useCartStore((state) => state.addItem);
+  const showToast = useToastStore((state) => state.show);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    setMessage('');
 
     mockApi.getProductDetail(Number(id)).then((data) => {
       if (!mounted) return;
@@ -40,13 +43,12 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     if (!product) return;
     setActionLoading('cart');
-    setMessage('');
 
     try {
-      await mockApi.addToCart(product.id, quantity);
-      setMessage(`已将 ${quantity} ${product.unit}加入购物车`);
+      await addToCart(product.id, quantity);
+      showToast(`已将 ${quantity} ${product.unit}加入购物车`, 'success');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '加入购物车失败');
+      showToast(error instanceof Error ? error.message : '加入购物车失败', 'error');
     } finally {
       setActionLoading(null);
     }
@@ -55,13 +57,13 @@ const ProductDetail = () => {
   const handleBuyNow = async () => {
     if (!product) return;
     setActionLoading('buy');
-    setMessage('');
 
     try {
       await mockApi.buyNow(product.id, quantity);
+      showToast('订单创建成功', 'success');
       navigate('/orders');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '创建订单失败');
+      showToast(error instanceof Error ? error.message : '创建订单失败', 'error');
       setActionLoading(null);
     }
   };
@@ -203,7 +205,6 @@ const ProductDetail = () => {
               {actionLoading === 'cart' ? '加入中...' : '加入购物车'}
             </button>
           </div>
-          {message && <div className="detail-action-message">{message}</div>}
         </div>
       </div>
 

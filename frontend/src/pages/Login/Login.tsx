@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { mockApi } from '../../services/mockApi';
+import { useAuthStore } from '@/store/authStore';
+import { useToastStore } from '@/store/toastStore';
 import './Login.css';
 
 const Login = () => {
@@ -8,14 +9,15 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ username: '', password: '', confirmPassword: '', phone: '' });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+
+  const { login, register } = useAuthStore();
+  const showToast = useToastStore((state) => state.show);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
 
     if (!isLogin && form.password !== form.confirmPassword) {
-      setMessage('两次输入的密码不一致');
+      showToast('两次输入的密码不一致', 'error');
       return;
     }
 
@@ -23,18 +25,15 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        await mockApi.login({ username: form.username, password: form.password });
+        await login(form.username, form.password);
+        showToast('登录成功', 'success');
       } else {
-        await mockApi.register({
-          username: form.username,
-          password: form.password,
-          phone: form.phone,
-        });
+        await register(form.username, form.password, form.phone);
+        showToast('注册成功', 'success');
       }
-      setMessage(isLogin ? '登录成功，正在进入个人中心...' : '注册成功，正在进入个人中心...');
-      window.setTimeout(() => navigate('/profile'), 600);
+      window.setTimeout(() => navigate('/profile'), 400);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '提交失败');
+      showToast(error instanceof Error ? error.message : '提交失败', 'error');
       setLoading(false);
     }
   };
@@ -125,8 +124,6 @@ const Login = () => {
               </div>
             )}
 
-            {message && <div className="login-message">{message}</div>}
-
             <button
               type="submit"
               className="btn btn-primary btn-lg login-submit-btn"
@@ -143,7 +140,6 @@ const Login = () => {
               className="switch-btn"
               onClick={() => {
                 setIsLogin(!isLogin);
-                setMessage('');
               }}
               disabled={loading}
             >

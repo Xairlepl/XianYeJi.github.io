@@ -1,17 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ORDER_STATUS_MAP } from '../../data/mockData';
-import { mockApi } from '../../services/mockApi';
-import { setProductImageFallback } from '../../utils/imageFallback';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
+import { ORDER_STATUS_MAP } from '@/data/mockData';
+import { mockApi } from '@/services/mockApi';
+import { setProductImageFallback } from '@/utils/imageFallback';
+import { formatPhone } from '@/utils/format';
 import './Profile.css';
 
 type ProfileData = Awaited<ReturnType<typeof mockApi.getProfileData>>;
 
 const Profile = () => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
     let mounted = true;
     mockApi.getProfileData().then((profileData) => {
       if (!mounted) return;
@@ -22,9 +31,9 @@ const Profile = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isAuthenticated, navigate]);
 
-  if (loading || !data) {
+  if (loading || !data || !user) {
     return (
       <main className="profile-page container section" id="profile-page">
         <div className="page-loading">
@@ -35,7 +44,7 @@ const Profile = () => {
     );
   }
 
-  const { user, asset, recentOrders, stats, notifications, coupons, addresses } = data;
+  const { asset, recentOrders, stats, notifications, coupons, addresses } = data;
 
   const menuItems = [
     { icon: '📦', label: '我的订单', link: '/orders', count: recentOrders.length },
@@ -59,10 +68,20 @@ const Profile = () => {
               </span>
             </div>
             <h2 className="profile-username">{user.username}</h2>
-            <p className="profile-phone">📱 {user.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}</p>
+            <p className="profile-phone">📱 {formatPhone(user.phone)}</p>
             <span className="profile-role-badge badge badge-fresh">
               {user.role === 'CUSTOMER' ? '普通会员' : '商家'}
             </span>
+            <button
+              className="btn btn-secondary btn-sm"
+              style={{ marginTop: 'var(--space-3)', width: '100%' }}
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+            >
+              退出登录
+            </button>
           </div>
 
           {/* Menu */}
