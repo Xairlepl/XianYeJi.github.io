@@ -16,6 +16,7 @@ import Addresses from './pages/Addresses/Addresses';
 import Favorites from './pages/Favorites/Favorites';
 import Coupons from './pages/Coupons/Coupons';
 import Notifications from './pages/Notifications/Notifications';
+import Reviews from './pages/Reviews/Reviews';
 import NotFound from './pages/NotFound/NotFound';
 import './index.css';
 
@@ -47,6 +48,7 @@ function App() {
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/coupons" element={<Coupons />} />
                   <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/reviews" element={<Reviews />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />
