@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import ScrollToTop from '@/components/common/ScrollToTop';
 import Toast from '@/components/common/Toast/Toast';
+import AIChat from '@/components/common/AIChat/AIChat';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Home from './pages/Home/Home';
@@ -20,6 +21,7 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Toast />
+        <AIChat />
         <Routes>
           {/* Login page — no header/footer */}
           <Route path="/login" element={<Login />} />
