@@ -1,12 +1,243 @@
 # 🌾 鲜野集 - 原生态农产品电商演示前端
 
-一个基于 **React 19 + TypeScript + Vite** 的现代化农产品电商单页应用，采用全局状态管理、组件化架构与完整的 UI 设计系统。
+基于 **React 19 + TypeScript + Vite** 的现代化农产品电商单页应用。
 
-## 品牌定位
-
-**鲜野集 (FreshWild)** - 连接优质农产地与消费者，精选全国原生态农产品，坚持产地直发，让每一份新鲜直达餐桌。
+> **项目根目录有完整文档，请参考 [../README.md](../README.md)**
 
 ## ✨ 技术栈
+
+- **React 19.2** + **TypeScript 6.0** + **Vite 8.0**
+- **Zustand 5.0** (状态管理)
+- **React Router 7.15** (路由)
+- **纯 CSS** (自定义设计系统)
+
+## 🚀 快速开始
+
+```bash
+# 安装依赖
+npm install
+
+# 开发服务器 (http://localhost:5173)
+npm run dev
+
+# 生产构建
+npm run build
+
+# 预览构建
+npm run preview
+
+# 代码检查
+npm run lint
+```
+
+## 📦 项目结构
+
+```
+src/
+├── components/
+│   ├── common/              # Toast, ErrorBoundary, AIChat
+│   ├── Header/Footer/       # 页头页脚
+│   └── ProductCard/         # 商品卡片
+├── pages/                   # 11 个页面组件
+│   ├── Home/                # 首页
+│   ├── ProductList/         # 商品列表
+│   ├── ProductDetail/       # 商品详情
+│   ├── Cart/                # 购物车
+│   ├── Orders/              # 订单列表
+│   ├── Profile/             # 个人中心
+│   ├── Login/               # 登录注册
+│   ├── Addresses/           # 收货地址
+│   ├── Favorites/           # 我的收藏
+│   ├── Coupons/             # 优惠券
+│   ├── Notifications/       # 消息通知
+│   └── NotFound/            # 404
+├── store/                   # 4 个 Zustand Store
+│   ├── cartStore.ts         # 购物车
+│   ├── authStore.ts         # 认证
+│   ├── favoriteStore.ts     # 收藏
+│   └── toastStore.ts        # 通知
+├── services/
+│   ├── mockApi.ts           # Mock API (350行)
+│   └── chatService.ts       # AI 客服引擎
+├── data/
+│   └── mockData.ts          # Mock 数据 (738行)
+├── types/
+│   └── index.ts             # TypeScript 类型定义
+├── utils/
+│   ├── format.ts            # 格式化工具
+│   └── imageFallback.ts     # 图片 fallback
+├── hooks/
+│   └── useAsync.ts          # 异步 hook
+├── App.tsx                  # 根组件
+├── main.tsx                 # 入口
+└── index.css                # 全局样式 + Design System
+```
+
+## 🎯 核心功能
+
+### 页面路由
+
+| 路径 | 页面 | 说明 |
+|------|------|------|
+| `/` | 首页 | 轮播、分类、热销商品、产地溯源 |
+| `/products` | 商品列表 | 分类筛选、排序、搜索 |
+| `/product/:id` | 商品详情 | 详情展示、加购、收藏 |
+| `/cart` | 购物车 | 购物车管理、结算 |
+| `/orders` | 订单列表 | 订单状态筛选、操作 |
+| `/profile` | 个人中心 | 用户信息、资产、菜单 |
+| `/login` | 登录注册 | 登录/注册切换 |
+| `/addresses` | 收货地址 | 地址管理 |
+| `/favorites` | 我的收藏 | 收藏商品列表 |
+| `/coupons` | 优惠券 | 优惠券列表 |
+| `/notifications` | 消息通知 | 消息列表、已读 |
+
+### 状态管理
+
+```typescript
+// 购物车 - 全局状态 + 实时角标
+useCartStore()
+
+// 认证 - localStorage 持久化
+useAuthStore()
+
+// 收藏 - localStorage 持久化
+useFavoriteStore()
+
+// Toast 通知
+useToastStore()
+```
+
+## 🎨 设计系统
+
+### Design Tokens (index.css)
+
+```css
+/* 色彩 */
+--color-primary-500: #22c55e      /* 品牌绿 */
+--color-accent-500: #f59e0b       /* 强调金 */
+--color-earth-500: #bc6c25        /* 大地色 */
+
+/* 排版 */
+--text-xs ~ --text-5xl            /* 12种字号 */
+--font-sans: 'Noto Sans SC', ...  /* 中文优先 */
+
+/* 间距 */
+--space-1 ~ --space-20            /* 10级间距 */
+
+/* 圆角 */
+--radius-sm ~ --radius-full       /* 5级圆角 */
+
+/* 阴影 */
+--shadow-sm ~ --shadow-glow       /* 5级阴影 */
+```
+
+### 组件库
+
+```html
+<!-- 按钮 -->
+<button class="btn btn-primary btn-lg">
+<button class="btn btn-secondary btn-sm">
+<button class="btn btn-accent">
+
+<!-- 卡片 -->
+<div class="card">
+<div class="glass">  <!-- 毛玻璃效果 -->
+
+<!-- 徽章 -->
+<span class="badge badge-fresh">
+<span class="badge badge-hot">
+```
+
+## 🤖 AI 客服
+
+纯前端智能对话引擎 (`chatService.ts`)：
+
+**能力：**
+- 意图识别 (8种)
+- 关键词提取
+- 商品查询与推荐
+- 页面导航
+
+**示例：**
+```
+用户: "有什么苹果"
+AI: 显示苹果商品卡片
+
+用户: "推荐商品"
+AI: 显示热销 TOP3
+
+用户: "我的订单"
+AI: [前往订单] 按钮
+```
+
+## 🔧 开发规范
+
+### 路径别名
+
+```typescript
+// ✅ 使用别名
+import { mockApi } from '@/services/mockApi'
+import { useCartStore } from '@/store/cartStore'
+
+// ❌ 避免相对路径
+import { mockApi } from '../../services/mockApi'
+```
+
+### 组件规范
+
+```typescript
+// 页面组件
+const PageName = () => {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuthStore()
+  
+  useEffect(() => {
+    if (!isAuthenticated) navigate('/login')
+  }, [isAuthenticated])
+  
+  return <main className="page-name-page container section">
+}
+
+// CSS 模块
+.page-name-page { min-height: 60vh; }
+```
+
+### Mock API 调用
+
+```typescript
+// 所有 API 带延迟模拟
+const data = await mockApi.getProducts()
+// ⏱ 模拟 360ms 延迟
+
+// Toast 反馈
+showToast('操作成功', 'success')
+showToast('操作失败', 'error')
+```
+
+## 📊 构建产物
+
+```bash
+npm run build
+
+# 产物
+dist/
+├── index.html          1.07 KB (gzip: 0.60 KB)
+├── assets/
+│   ├── index.css      52.79 KB (gzip: 8.90 KB)
+│   └── index.js      314.95 KB (gzip: 96.49 KB)
+└── favicon.svg
+```
+
+## 🌐 浏览器支持
+
+- Chrome / Edge (最新)
+- Firefox (最新)
+- Safari 15+
+
+---
+
+**MIT License © 2026**
+
 
 - **React 19.2** - 最新稳定版
 - **TypeScript 6.0** - 类型安全
