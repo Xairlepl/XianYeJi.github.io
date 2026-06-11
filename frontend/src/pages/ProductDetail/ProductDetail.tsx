@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { mockApi } from '@/services/mockApi';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
+import { useFavoriteStore } from '@/store/favoriteStore';
 import ProductCard from '@/components/ProductCard/ProductCard';
 import type { Product, ProductReview } from '@/types';
 import { setProductImageFallback } from '@/utils/imageFallback';
@@ -21,6 +22,7 @@ const ProductDetail = () => {
 
   const addToCart = useCartStore((state) => state.addItem);
   const showToast = useToastStore((state) => state.show);
+  const { toggle: toggleFavorite, isFavorite } = useFavoriteStore();
 
   useEffect(() => {
     let mounted = true;
@@ -203,6 +205,16 @@ const ProductDetail = () => {
               disabled={actionLoading !== null}
             >
               {actionLoading === 'cart' ? '加入中...' : '加入购物车'}
+            </button>
+            <button
+              className={`btn btn-secondary btn-lg ${isFavorite(product.id) ? 'active' : ''}`}
+              onClick={() => {
+                toggleFavorite(product.id);
+                showToast(isFavorite(product.id) ? '已取消收藏' : '已添加到收藏', 'success');
+              }}
+              title={isFavorite(product.id) ? '取消收藏' : '收藏商品'}
+            >
+              {isFavorite(product.id) ? '❤️' : '🤍'}
             </button>
           </div>
         </div>

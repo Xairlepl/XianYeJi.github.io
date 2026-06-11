@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { useFavoriteStore } from '@/store/favoriteStore';
+import { useToastStore } from '@/store/toastStore';
 import { ORDER_STATUS_MAP } from '@/data/mockData';
 import { mockApi } from '@/services/mockApi';
 import { setProductImageFallback } from '@/utils/imageFallback';
@@ -12,8 +14,16 @@ type ProfileData = Awaited<ReturnType<typeof mockApi.getProfileData>>;
 const Profile = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const favoriteCount = useFavoriteStore((state) => state.count);
+  const showToast = useToastStore((state) => state.show);
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    const profileData = await mockApi.getProfileData();
+    setData(profileData);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -22,16 +32,25 @@ const Profile = () => {
     }
 
     let mounted = true;
-    mockApi.getProfileData().then((profileData) => {
+    loadData().then(() => {
       if (!mounted) return;
-      setData(profileData);
-      setLoading(false);
     });
 
     return () => {
       mounted = false;
     };
   }, [isAuthenticated, navigate]);
+
+  const handleMarkRead = async (id: number) => {
+    const updated = await mockApi.markNotificationRead(id);
+    setData((prev) => (prev ? { ...prev, notifications: updated } : null));
+  };
+
+  const handleMarkAllRead = async () => {
+    const updated = await mockApi.markAllNotificationsRead();
+    setData((prev) => (prev ? { ...prev, notifications: updated } : null));
+    showToast('已全部标为已读', 'success');
+  };
 
   if (loading || !data || !user) {
     return (
@@ -49,7 +68,7 @@ const Profile = () => {
   const menuItems = [
     { icon: '📦', label: '我的订单', link: '/orders', count: recentOrders.length },
     { icon: '📍', label: '收货地址', link: '#addresses', count: addresses.length },
-    { icon: '❤️', label: '我的收藏', link: '#', count: asset.favorites },
+    { icon: '❤️', label: '我的收藏', link: '#', count: favoriteCount },
     { icon: '🎫', label: '优惠券', link: '#coupons', count: coupons.length },
     { icon: '⭐', label: '我的评价', link: '#', count: 5 },
     { icon: '💬', label: '消息通知', link: '#notifications', count: notifications.filter((item) => !item.read).length },
@@ -193,10 +212,20 @@ const Profile = () => {
             <section className="profile-panel" id="notifications">
               <div className="section-header">
                 <h3 className="section-title" style={{ fontSize: 'var(--text-lg)' }}>消息通知</h3>
+                {notifications.some((n) => !n.read) && (
+                  <button className="btn btn-sm btn-secondary" onClick={handleMarkAllRead}>
+                    全部已读
+                  </button>
+                )}
               </div>
               <div className="notice-list">
                 {notifications.map((notice) => (
-                  <div key={notice.id} className={`notice-item ${notice.read ? '' : 'unread'}`}>
+                  <div
+                    key={notice.id}
+                    className={`notice-item ${notice.read ? '' : 'unread'}`}
+                    onClick={() => !notice.read && handleMarkRead(notice.id)}
+                    style={{ cursor: notice.read ? 'default' : 'pointer' }}
+                  >
                     <strong>{notice.title}</strong>
                     <p>{notice.content}</p>
                     <small>{notice.createdAt}</small>

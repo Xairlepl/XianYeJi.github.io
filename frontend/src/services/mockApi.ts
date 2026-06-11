@@ -12,7 +12,7 @@ import {
   mockUser,
   mockUserAsset,
 } from '../data/mockData';
-import type { CartItem, Order, Product, User } from '../types';
+import type { Address, CartItem, Order, Product, User } from '../types';
 
 export type ProductSort = 'default' | 'price-asc' | 'price-desc' | 'sales';
 export type OrderFilter = 'ALL' | Order['status'];
@@ -36,6 +36,8 @@ interface RegisterPayload extends LoginPayload {
 let cartItems: CartItem[] = structuredClone(mockCartItems);
 let orders: Order[] = structuredClone(mockOrders);
 let currentUser: User = structuredClone(mockUser);
+let notifications = structuredClone(mockNotifications);
+let addresses = structuredClone(mockAddresses);
 
 const wait = async (ms = 420) => {
   await new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -306,11 +308,48 @@ export const mockApi = {
     return clone({
       user: currentUser,
       asset: mockUserAsset,
-      addresses: mockAddresses,
+      addresses,
       coupons: mockCoupons,
-      notifications: mockNotifications,
+      notifications,
       recentOrders: orders.slice(0, 3),
       stats: orderStats(),
     });
+  },
+
+  async markNotificationRead(id: number) {
+    await wait(200);
+    notifications = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
+    return clone(notifications);
+  },
+
+  async markAllNotificationsRead() {
+    await wait(300);
+    notifications = notifications.map((n) => ({ ...n, read: true }));
+    return clone(notifications);
+  },
+
+  async addAddress(address: Omit<Address, 'id'>) {
+    await wait(400);
+    const newAddress = { ...address, id: Math.max(0, ...addresses.map((a) => a.id)) + 1 };
+    addresses = [...addresses, newAddress];
+    return clone(addresses);
+  },
+
+  async updateAddress(id: number, address: Partial<Address>) {
+    await wait(400);
+    addresses = addresses.map((a) => (a.id === id ? { ...a, ...address } : a));
+    return clone(addresses);
+  },
+
+  async deleteAddress(id: number) {
+    await wait(300);
+    addresses = addresses.filter((a) => a.id !== id);
+    return clone(addresses);
+  },
+
+  async setDefaultAddress(id: number) {
+    await wait(200);
+    addresses = addresses.map((a) => ({ ...a, isDefault: a.id === id }));
+    return clone(addresses);
   },
 };
