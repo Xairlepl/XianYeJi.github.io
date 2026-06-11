@@ -1,4 +1,4 @@
-import { mockProducts, mockCategories, mockOrders } from '@/data/mockData';
+import { mockProducts, mockCategories } from '@/data/mockData';
 import type { Product } from '@/types';
 
 interface ChatResponse {

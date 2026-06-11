@@ -5,6 +5,7 @@ import { useFavoriteStore } from '@/store/favoriteStore';
 import { useToastStore } from '@/store/toastStore';
 import { ORDER_STATUS_MAP } from '@/data/mockData';
 import { mockApi } from '@/services/mockApi';
+import { mockProducts } from '@/data/mockData';
 import { setProductImageFallback } from '@/utils/imageFallback';
 import { formatPhone } from '@/utils/format';
 import './Profile.css';
@@ -14,10 +15,12 @@ type ProfileData = Awaited<ReturnType<typeof mockApi.getProfileData>>;
 const Profile = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
-  const favoriteCount = useFavoriteStore((state) => state.count);
+  const { favoriteIds, count: favoriteCount } = useFavoriteStore();
   const showToast = useToastStore((state) => state.show);
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const favoriteProducts = mockProducts.filter((p) => favoriteIds.includes(p.id));
 
   const loadData = async () => {
     const profileData = await mockApi.getProfileData();
@@ -192,6 +195,37 @@ const Profile = () => {
           </div>
 
           <div className="profile-two-col">
+            <section className="profile-panel" id="favorites">
+              <div className="section-header">
+                <h3 className="section-title" style={{ fontSize: 'var(--text-lg)' }}>我的收藏</h3>
+              </div>
+              <div className="favorite-list">
+                {favoriteProducts.length > 0 ? (
+                  favoriteProducts.map((product) => (
+                    <Link key={product.id} to={`/product/${product.id}`} className="favorite-item card">
+                      <img
+                        src={product.coverImage}
+                        alt={product.name}
+                        onError={(event) => setProductImageFallback(event, product.name)}
+                      />
+                      <div className="favorite-info">
+                        <span className="favorite-name">{product.name}</span>
+                        <span className="favorite-price">¥{product.price.toFixed(1)}</span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="empty-state compact">
+                    <span style={{ fontSize: '3rem' }}>🤍</span>
+                    <p>暂无收藏商品</p>
+                    <Link to="/products" className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
+                      去逛逛
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </section>
+
             <section className="profile-panel" id="coupons">
               <div className="section-header">
                 <h3 className="section-title" style={{ fontSize: 'var(--text-lg)' }}>可用优惠券</h3>

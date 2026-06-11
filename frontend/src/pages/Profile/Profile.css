@@ -322,6 +322,49 @@
   color: var(--color-neutral-400);
 }
 
+.favorite-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.favorite-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  transition: all var(--transition-fast);
+}
+
+.favorite-item:hover {
+  transform: translateX(-4px);
+}
+
+.favorite-item img {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.favorite-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.favorite-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-neutral-800);
+}
+
+.favorite-price {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary-600);
+}
+
 .notice-item {
   position: relative;
   padding: var(--space-4);

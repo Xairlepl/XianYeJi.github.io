@@ -186,6 +186,11 @@ const ProductDetail = () => {
                 +
               </button>
             </div>
+            {quantity >= product.stock && (
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-error)' }}>
+                已达最大库存
+              </span>
+            )}
           </div>
 
           {/* Actions */}

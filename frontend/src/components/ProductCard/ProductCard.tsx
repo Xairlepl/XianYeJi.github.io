@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import type { Product } from '../../types';
-import { setProductImageFallback } from '../../utils/imageFallback';
+import type { Product } from '@/types';
+import { useFavoriteStore } from '@/store/favoriteStore';
+import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -9,6 +10,8 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
+  const { toggle, isFavorite } = useFavoriteStore();
+
   return (
     <Link
       to={`/product/${product.id}`}
@@ -34,6 +37,16 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             </span>
           ))}
         </div>
+        <button
+          className={`product-card-favorite ${isFavorite(product.id) ? 'active' : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            toggle(product.id);
+          }}
+          title={isFavorite(product.id) ? '取消收藏' : '收藏'}
+        >
+          {isFavorite(product.id) ? '❤️' : '🤍'}
+        </button>
       </div>
 
       {/* Info */}
