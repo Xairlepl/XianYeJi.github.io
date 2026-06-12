@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   Leaf,
   PackageX,
-  QrCode,
   ClipboardCheck,
   PackageCheck,
   Warehouse,
@@ -31,10 +30,16 @@ import { useToastStore } from '@/store/toastStore';
 import { useFavoriteStore } from '@/store/favoriteStore';
 import { useAuthStore } from '@/store/authStore';
 import ProductCard from '@/components/ProductCard/ProductCard';
+import TraceQrCode from '@/components/common/TraceQrCode/TraceQrCode';
 import StarRating from '@/components/common/StarRating/StarRating';
 import type { Product, ProductReview, ServiceConversation, Traceability } from '@/types';
 import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductDetail.css';
+
+const shouldOpenTraceTab = () => {
+  if (typeof window === 'undefined') return false;
+  return window.location.hash === '#origin-trace' || new URLSearchParams(window.location.search).has('traceCode');
+};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -69,6 +74,7 @@ const ProductDetail = () => {
       setReviews(data.reviews);
       setTraceability(data.traceability);
       setQuantity(1);
+      setActiveTab(shouldOpenTraceTab() ? 'origin' : 'detail');
       setServiceOpen(false);
       setServiceConversation(null);
       setServiceInput('');
@@ -155,6 +161,24 @@ const ProductDetail = () => {
       setServiceSending(false);
     }
   };
+
+  const traceQrValue = useMemo(() => {
+    if (!traceability) return '';
+    if (typeof window === 'undefined') return traceability.traceCode;
+
+    const traceUrl = new URL(window.location.href);
+    traceUrl.searchParams.set('traceCode', traceability.traceCode);
+    traceUrl.hash = 'origin-trace';
+    return traceUrl.toString();
+  }, [traceability]);
+
+  useEffect(() => {
+    if (activeTab !== 'origin' || !traceability || !shouldOpenTraceTab()) return;
+
+    window.requestAnimationFrame(() => {
+      document.getElementById('origin-trace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [activeTab, traceability]);
 
   if (loading) {
     return (
@@ -479,13 +503,17 @@ const ProductDetail = () => {
               </div>
             </div>
           ) : activeTab === 'origin' ? (
-            <div className="tab-origin">
+            <div className="tab-origin" id="origin-trace">
               {traceability ? (
                 <>
                   <div className="trace-grid">
                     <div className="trace-code-card">
                       <span className="trace-qr">
-                        <QrCode size={56} />
+                        <TraceQrCode
+                          value={traceQrValue}
+                          size={104}
+                          title={`${product.name} 产地溯源二维码`}
+                        />
                       </span>
                       <div className="trace-code-info">
                         <small>商品溯源码</small>
