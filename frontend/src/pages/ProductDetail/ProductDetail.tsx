@@ -1,11 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import {
+  ChevronRight,
+  MapPin,
+  Package,
+  Truck,
+  Clock,
+  Minus,
+  Plus,
+  ShoppingCart,
+  ShoppingBag,
+  Heart,
+  Sprout,
+  Award,
+  ShieldCheck,
+  Leaf,
+  PackageX,
+  QrCode,
+  ClipboardCheck,
+  PackageCheck,
+  Warehouse,
+  Route,
+} from 'lucide-react';
 import { mockApi } from '@/services/mockApi';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 import { useFavoriteStore } from '@/store/favoriteStore';
 import ProductCard from '@/components/ProductCard/ProductCard';
-import type { Product, ProductReview } from '@/types';
+import StarRating from '@/components/common/StarRating/StarRating';
+import type { Product, ProductReview, Traceability } from '@/types';
 import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductDetail.css';
 
@@ -15,6 +38,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [traceability, setTraceability] = useState<Traceability | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'detail' | 'origin' | 'reviews'>('detail');
   const [loading, setLoading] = useState(true);
@@ -33,6 +57,7 @@ const ProductDetail = () => {
       setProduct(data.product);
       setRelated(data.related);
       setReviews(data.reviews);
+      setTraceability(data.traceability);
       setQuantity(1);
       setLoading(false);
     });
@@ -74,7 +99,7 @@ const ProductDetail = () => {
     return (
       <div className="container section page-loading">
         <span className="loading-spinner" />
-        <span>正在请求模拟商品详情...</span>
+        <span>正在加载商品详情...</span>
       </div>
     );
   }
@@ -82,21 +107,27 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <div className="container section empty-state">
-        <span className="empty-icon">😅</span>
-        <p>商品不存在</p>
-        <Link to="/products" className="btn btn-primary" style={{ marginTop: '1rem' }}>返回商品列表</Link>
+        <span className="empty-icon">
+          <PackageX size={40} />
+        </span>
+        <p>商品不存在或已下架</p>
+        <Link to="/products" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
+          返回商品列表
+        </Link>
       </div>
     );
   }
+
+  const favorite = isFavorite(product.id);
 
   return (
     <main className="detail-page container section" id="product-detail-page">
       {/* Breadcrumb */}
       <nav className="breadcrumb">
         <Link to="/">首页</Link>
-        <span>/</span>
+        <ChevronRight size={14} />
         <Link to="/products">{product.categoryName}</Link>
-        <span>/</span>
+        <ChevronRight size={14} />
         <span>{product.name}</span>
       </nav>
 
@@ -150,19 +181,31 @@ const ProductDetail = () => {
           <div className="detail-meta">
             <div className="meta-item">
               <span className="meta-label">产地</span>
-              <span className="meta-value">📍 {product.origin}</span>
+              <span className="meta-value">
+                <MapPin size={15} />
+                {product.origin}
+              </span>
             </div>
             <div className="meta-item">
               <span className="meta-label">库存</span>
-              <span className="meta-value">{product.stock} {product.unit}</span>
+              <span className="meta-value">
+                <Package size={15} />
+                {product.stock} {product.unit}
+              </span>
             </div>
             <div className="meta-item">
               <span className="meta-label">运费</span>
-              <span className="meta-value" style={{ color: 'var(--color-primary-600)' }}>包邮</span>
+              <span className="meta-value">
+                <Truck size={15} />
+                <span style={{ color: 'var(--color-primary-600)', fontWeight: 700 }}>全场包邮</span>
+              </span>
             </div>
             <div className="meta-item">
               <span className="meta-label">发货</span>
-              <span className="meta-value">48小时内从产地发出</span>
+              <span className="meta-value">
+                <Clock size={15} />
+                48小时内从产地发出
+              </span>
             </div>
           </div>
 
@@ -174,16 +217,18 @@ const ProductDetail = () => {
                 className="qty-btn"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1}
+                aria-label="减少数量"
               >
-                −
+                <Minus size={16} />
               </button>
               <span className="qty-value">{quantity}</span>
               <button
                 className="qty-btn"
                 onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                 disabled={quantity >= product.stock}
+                aria-label="增加数量"
               >
-                +
+                <Plus size={16} />
               </button>
             </div>
             {quantity >= product.stock && (
@@ -201,7 +246,14 @@ const ProductDetail = () => {
               onClick={handleBuyNow}
               disabled={actionLoading !== null}
             >
-              {actionLoading === 'buy' ? '生成订单中...' : '🛒 立即购买'}
+              {actionLoading === 'buy' ? (
+                '生成订单中...'
+              ) : (
+                <>
+                  <ShoppingBag size={18} />
+                  立即购买
+                </>
+              )}
             </button>
             <button
               className="btn btn-secondary btn-lg detail-cart-btn"
@@ -209,18 +261,42 @@ const ProductDetail = () => {
               onClick={handleAddToCart}
               disabled={actionLoading !== null}
             >
-              {actionLoading === 'cart' ? '加入中...' : '加入购物车'}
+              {actionLoading === 'cart' ? (
+                '加入中...'
+              ) : (
+                <>
+                  <ShoppingCart size={18} />
+                  加入购物车
+                </>
+              )}
             </button>
             <button
-              className={`btn btn-secondary btn-lg ${isFavorite(product.id) ? 'active' : ''}`}
+              className={`btn btn-secondary btn-lg detail-fav-btn ${favorite ? 'active' : ''}`}
               onClick={() => {
                 toggleFavorite(product.id);
-                showToast(isFavorite(product.id) ? '已取消收藏' : '已添加到收藏', 'success');
+                showToast(favorite ? '已取消收藏' : '已添加到收藏', 'success');
               }}
-              title={isFavorite(product.id) ? '取消收藏' : '收藏商品'}
+              title={favorite ? '取消收藏' : '收藏商品'}
+              aria-label={favorite ? '取消收藏' : '收藏商品'}
             >
-              {isFavorite(product.id) ? '❤️' : '🤍'}
+              <Heart size={20} fill={favorite ? 'currentColor' : 'none'} />
             </button>
+          </div>
+
+          {/* Guarantees */}
+          <div className="detail-guarantee">
+            <div className="guarantee-item">
+              <ShieldCheck size={18} />
+              <span>正品保障</span>
+            </div>
+            <div className="guarantee-item">
+              <Truck size={18} />
+              <span>产地直发</span>
+            </div>
+            <div className="guarantee-item">
+              <Leaf size={18} />
+              <span>坏果包赔</span>
+            </div>
           </div>
         </div>
       </div>
@@ -244,7 +320,7 @@ const ProductDetail = () => {
             className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
             onClick={() => setActiveTab('reviews')}
           >
-            用户评价
+            用户评价（{reviews.length}）
           </button>
         </div>
         <div className="detail-tab-content">
@@ -253,21 +329,27 @@ const ProductDetail = () => {
               <p>{product.description}</p>
               <div className="detail-features">
                 <div className="feature-item">
-                  <span className="feature-icon">🌱</span>
+                  <span className="feature-icon">
+                    <Sprout size={22} />
+                  </span>
                   <div>
                     <h4>绿色种植</h4>
                     <p>严格按照绿色食品标准种植，不使用违禁农药</p>
                   </div>
                 </div>
                 <div className="feature-item">
-                  <span className="feature-icon">📦</span>
+                  <span className="feature-icon">
+                    <Package size={22} />
+                  </span>
                   <div>
                     <h4>精选包装</h4>
                     <p>专业防损包装，保证运输过程中产品完好</p>
                   </div>
                 </div>
                 <div className="feature-item">
-                  <span className="feature-icon">🏅</span>
+                  <span className="feature-icon">
+                    <Award size={22} />
+                  </span>
                   <div>
                     <h4>品质认证</h4>
                     <p>通过国家农产品质量安全检测，食用更安心</p>
@@ -277,13 +359,103 @@ const ProductDetail = () => {
             </div>
           ) : activeTab === 'origin' ? (
             <div className="tab-origin">
-              <div className="origin-card glass">
-                <h4>📍 产地信息</h4>
-                <p><strong>产地：</strong>{product.origin}</p>
-                <p><strong>供应商：</strong>{product.sellerName}</p>
-                <p><strong>种植/养殖方式：</strong>生态有机种植，自然成熟采摘</p>
-                <p><strong>质量认证：</strong>绿色食品认证 / 有机产品认证</p>
-              </div>
+              {traceability ? (
+                <>
+                  <div className="trace-grid">
+                    <div className="trace-code-card">
+                      <span className="trace-qr">
+                        <QrCode size={56} />
+                      </span>
+                      <div className="trace-code-info">
+                        <small>商品溯源码</small>
+                        <strong className="trace-code">{traceability.traceCode}</strong>
+                        <div className="trace-code-meta">
+                          <span>批次号：{traceability.batchNo}</span>
+                          <span>采收日期：{traceability.harvestDate}</span>
+                        </div>
+                        <div className="trace-certs">
+                          {traceability.certifications.map((cert) => (
+                            <span key={cert} className="badge badge-fresh">
+                              <Award size={12} />
+                              {cert}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="trace-info-card">
+                      <h4>
+                        <Sprout size={17} />
+                        种植 / 养殖主体
+                      </h4>
+                      <p className="trace-grower">
+                        <strong>{traceability.grower}</strong>
+                        <span className="trace-grower-origin">
+                          <MapPin size={13} />
+                          {product.origin}
+                        </span>
+                      </p>
+                      <p>{traceability.growerIntro}</p>
+                      <p className="trace-method">{traceability.plantingMethod}</p>
+                    </div>
+
+                    <div className="trace-info-card">
+                      <h4>
+                        <ClipboardCheck size={17} />
+                        质检报告
+                      </h4>
+                      <p>检测机构：{traceability.inspection.agency}</p>
+                      <p>
+                        报告编号：{traceability.inspection.reportNo} · {traceability.inspection.date}
+                      </p>
+                      <div className="trace-inspection-items">
+                        {traceability.inspection.items.map((item) => (
+                          <span key={item}>{item}</span>
+                        ))}
+                      </div>
+                      <span className="trace-inspection-result">
+                        <ShieldCheck size={14} />
+                        {traceability.inspection.result}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="trace-timeline-card">
+                    <h4>
+                      <Route size={17} />
+                      流通链路（产地直发，全程可追溯）
+                    </h4>
+                    <ol className="trace-timeline">
+                      {traceability.steps.map((step, index) => {
+                        const StepIcon = [Sprout, PackageCheck, ClipboardCheck, Truck, Warehouse][index] ?? Truck;
+                        return (
+                          <li key={step.title} className="trace-step">
+                            <span className="trace-step-icon">
+                              <StepIcon size={17} />
+                            </span>
+                            <div className="trace-step-body">
+                              <div className="trace-step-head">
+                                <strong>{step.title}</strong>
+                                <time>{step.time}</time>
+                              </div>
+                              <p>{step.desc}</p>
+                              <span className="trace-step-location">
+                                <MapPin size={12} />
+                                {step.location}
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                </>
+              ) : (
+                <div className="empty-state compact">
+                  <p>暂无溯源信息</p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="review-list">
@@ -292,7 +464,7 @@ const ProductDetail = () => {
                   <article key={review.id} className="review-card">
                     <div className="review-card-header">
                       <strong>{review.username}</strong>
-                      <span>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                      <StarRating rating={review.rating} size={15} />
                     </div>
                     <p>{review.content}</p>
                     <time>{review.createdAt}</time>

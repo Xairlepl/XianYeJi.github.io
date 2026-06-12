@@ -1,3 +1,4 @@
+import { CheckCircle2, XCircle, Info } from 'lucide-react';
 import { useToastStore } from '@/store/toastStore';
 import './Toast.css';
 
@@ -13,9 +14,9 @@ const Toast = () => {
           onClick={() => remove(toast.id)}
         >
           <span className="toast-icon">
-            {toast.type === 'success' && '✅'}
-            {toast.type === 'error' && '❌'}
-            {toast.type === 'info' && 'ℹ️'}
+            {toast.type === 'success' && <CheckCircle2 size={20} />}
+            {toast.type === 'error' && <XCircle size={20} />}
+            {toast.type === 'info' && <Info size={20} />}
           </span>
           <span className="toast-message">{toast.message}</span>
         </div>

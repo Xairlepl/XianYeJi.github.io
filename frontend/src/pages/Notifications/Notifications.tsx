@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bell, BellOff, Package, Gift, Info, CheckCheck } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import { mockApi } from '@/services/mockApi';
@@ -54,9 +55,13 @@ const Notifications = () => {
   return (
     <main className="notifications-page container section">
       <div className="page-header">
-        <h1 className="page-title">💬 消息通知</h1>
+        <h1 className="page-title">
+          <Bell size={26} />
+          消息通知
+        </h1>
         {unreadCount > 0 && (
           <button className="btn btn-primary btn-sm" onClick={handleMarkAllRead}>
+            <CheckCheck size={14} />
             全部已读
           </button>
         )}
@@ -64,7 +69,9 @@ const Notifications = () => {
 
       {notifications.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">📭</span>
+          <span className="empty-icon">
+            <BellOff size={40} />
+          </span>
           <p>暂无消息</p>
         </div>
       ) : (
@@ -76,10 +83,10 @@ const Notifications = () => {
               onClick={() => !notif.read && handleMarkRead(notif.id)}
               style={{ cursor: notif.read ? 'default' : 'pointer' }}
             >
-              <div className="notification-icon">
-                {notif.type === 'ORDER' && '📦'}
-                {notif.type === 'PROMOTION' && '🎁'}
-                {notif.type === 'SYSTEM' && 'ℹ️'}
+              <div className={`notification-icon type-${notif.type.toLowerCase()}`}>
+                {notif.type === 'ORDER' && <Package size={20} />}
+                {notif.type === 'PROMOTION' && <Gift size={20} />}
+                {notif.type === 'SYSTEM' && <Info size={20} />}
               </div>
               <div className="notification-content">
                 <h3 className="notification-title">{notif.title}</h3>

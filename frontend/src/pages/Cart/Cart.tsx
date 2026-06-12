@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, MapPin, Trash2, Minus, Plus } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 import { mockApi } from '@/services/mockApi';
@@ -67,7 +68,10 @@ const Cart = () => {
 
   return (
     <main className="cart-page container section" id="cart-page">
-      <h1 className="page-title">🛒 我的购物车</h1>
+      <h1 className="page-title">
+        <ShoppingCart size={26} />
+        我的购物车
+      </h1>
 
       {loading ? (
         <div className="page-loading">
@@ -76,8 +80,10 @@ const Cart = () => {
         </div>
       ) : items.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">🛒</span>
-          <p>购物车空空如也</p>
+          <span className="empty-icon">
+            <ShoppingCart size={40} />
+          </span>
+          <p>购物车还是空的</p>
           <Link to="/products" className="btn btn-primary" style={{ marginTop: '1rem' }}>
             去逛逛
           </Link>
@@ -124,7 +130,10 @@ const Cart = () => {
                   <Link to={`/product/${item.product.id}`} className="cart-item-name">
                     {item.product.name}
                   </Link>
-                  <span className="cart-item-origin">📍 {item.product.origin}</span>
+                  <span className="cart-item-origin">
+                    <MapPin size={13} />
+                    {item.product.origin}
+                  </span>
                 </div>
                 <div className="cart-item-price">
                   <span className="price-symbol">¥</span>
@@ -136,16 +145,18 @@ const Cart = () => {
                       className="qty-btn"
                       onClick={() => handleUpdateQuantity(item.id, -1)}
                       disabled={item.quantity <= 1 || pendingId !== null}
+                      aria-label="减少数量"
                     >
-                      −
+                      <Minus size={14} />
                     </button>
                     <span className="qty-value">{item.quantity}</span>
                     <button
                       className="qty-btn"
                       onClick={() => handleUpdateQuantity(item.id, 1)}
                       disabled={pendingId !== null || item.quantity >= item.product.stock}
+                      aria-label="增加数量"
                     >
-                      +
+                      <Plus size={14} />
                     </button>
                   </div>
                 </div>
@@ -156,9 +167,10 @@ const Cart = () => {
                   className="cart-item-remove"
                   onClick={() => handleRemoveItem(item.id)}
                   title="删除"
+                  aria-label="删除商品"
                   disabled={pendingId !== null}
                 >
-                  {pendingId === item.id ? '...' : '🗑️'}
+                  {pendingId === item.id ? '...' : <Trash2 size={18} />}
                 </button>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Wheat, Sprout, Truck, Wallet, ArrowLeft, ShieldCheck, UserRound, Store } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import './Login.css';
@@ -24,18 +25,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        await login(form.username, form.password);
-        showToast('登录成功', 'success');
-      } else {
-        await register(form.username, form.password, form.phone);
-        showToast('注册成功', 'success');
-      }
-      window.setTimeout(() => navigate('/profile'), 400);
+      const user = isLogin
+        ? await login(form.username, form.password)
+        : await register(form.username, form.password, form.phone);
+      showToast(isLogin ? '登录成功' : '注册成功', 'success');
+      const target = user.role === 'ADMIN' ? '/admin' : user.role === 'SELLER' ? '/seller' : '/profile';
+      window.setTimeout(() => navigate(target), 400);
     } catch (error) {
       showToast(error instanceof Error ? error.message : '提交失败', 'error');
       setLoading(false);
     }
+  };
+
+  const fillDemo = (username: string, password: string) => {
+    setIsLogin(true);
+    setForm({ ...form, username, password });
   };
 
   return (
@@ -44,20 +48,28 @@ const Login = () => {
         {/* Left visual */}
         <div className="login-visual">
           <div className="login-visual-content">
-            <span className="login-visual-icon">🌾</span>
+            <span className="login-visual-icon">
+              <Wheat size={56} />
+            </span>
             <h2>鲜野集</h2>
             <p>原生态农产品 · 产地直发</p>
             <div className="login-visual-features">
               <div className="visual-feature">
-                <span>🌱</span>
+                <span className="visual-feature-icon">
+                  <Sprout size={18} />
+                </span>
                 <span>精选全国原生态农产品</span>
               </div>
               <div className="visual-feature">
-                <span>🚚</span>
+                <span className="visual-feature-icon">
+                  <Truck size={18} />
+                </span>
                 <span>产地直发 · 48小时送达</span>
               </div>
               <div className="visual-feature">
-                <span>💰</span>
+                <span className="visual-feature-icon">
+                  <Wallet size={18} />
+                </span>
                 <span>新人注册享专属优惠</span>
               </div>
             </div>
@@ -134,6 +146,24 @@ const Login = () => {
             </button>
           </form>
 
+          <div className="login-demo">
+            <span className="login-demo-title">演示账号一键填充</span>
+            <div className="login-demo-list">
+              <button type="button" className="login-demo-btn" onClick={() => fillDemo('admin', 'admin123')} disabled={loading}>
+                <ShieldCheck size={14} />
+                管理员 admin / admin123
+              </button>
+              <button type="button" className="login-demo-btn" onClick={() => fillDemo('张三', '123456')} disabled={loading}>
+                <UserRound size={14} />
+                会员 张三 / 123456
+              </button>
+              <button type="button" className="login-demo-btn" onClick={() => fillDemo('果园王五', '123456')} disabled={loading}>
+                <Store size={14} />
+                商家 果园王五 / 123456
+              </button>
+            </div>
+          </div>
+
           <div className="login-switch">
             <span>{isLogin ? '还没有账号？' : '已有账号？'}</span>
             <button
@@ -147,7 +177,10 @@ const Login = () => {
             </button>
           </div>
 
-          <Link to="/" className="back-home">← 返回首页</Link>
+          <Link to="/" className="back-home">
+            <ArrowLeft size={14} />
+            返回首页
+          </Link>
         </div>
       </div>
     </main>

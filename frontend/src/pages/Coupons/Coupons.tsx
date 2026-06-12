@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Ticket, TicketX } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { mockApi } from '@/services/mockApi';
 import type { Coupon } from '@/types';
@@ -38,11 +39,16 @@ const Coupons = () => {
 
   return (
     <main className="coupons-page container section">
-      <h1 className="page-title">🎫 我的优惠券</h1>
+      <h1 className="page-title">
+        <Ticket size={26} />
+        我的优惠券
+      </h1>
 
       {coupons.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">🎫</span>
+          <span className="empty-icon">
+            <TicketX size={40} />
+          </span>
           <p>暂无优惠券</p>
         </div>
       ) : (

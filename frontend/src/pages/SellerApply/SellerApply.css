@@ -1,0 +1,186 @@
+.apply-page {
+  min-height: 60vh;
+  padding-top: var(--space-8);
+}
+
+/* 状态卡片 */
+.apply-status-card {
+  max-width: 520px;
+  margin: var(--space-10) auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-10) var(--space-8);
+  border: 1.5px solid rgba(20, 26, 19, 0.06);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.apply-status-card h1 {
+  color: var(--color-neutral-900);
+  font-size: var(--text-2xl);
+  font-weight: 900;
+}
+
+.apply-status-card p {
+  color: var(--color-neutral-500);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+.apply-status-icon {
+  width: 84px;
+  height: 84px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-500);
+}
+
+.apply-status-icon.pending {
+  background: #fdf3e2;
+  color: var(--color-warning);
+}
+
+.apply-status-icon.success {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.apply-status-icon.error {
+  background: #fdecea;
+  color: var(--color-error);
+}
+
+/* 申请表单布局 */
+.apply-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+
+.apply-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-10) var(--space-8);
+  background: linear-gradient(160deg, var(--color-accent-500) 0%, var(--color-accent-700) 100%);
+  color: #fff;
+}
+
+.apply-intro-icon {
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.apply-intro h1 {
+  font-size: var(--text-3xl);
+  font-weight: 900;
+}
+
+.apply-intro p {
+  font-size: var(--text-sm);
+  line-height: 1.75;
+  opacity: 0.92;
+}
+
+.apply-intro ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.apply-intro li {
+  position: relative;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.apply-intro li::before {
+  content: '';
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-10) var(--space-8);
+  background: #fff;
+}
+
+.apply-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.apply-form label {
+  color: var(--color-neutral-700);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.apply-form input,
+.apply-form select,
+.apply-form textarea {
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-50);
+  font-size: var(--text-base);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.apply-form input:focus,
+.apply-form select:focus,
+.apply-form textarea:focus {
+  border-color: var(--color-accent-400);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(220, 82, 28, 0.08);
+}
+
+.apply-submit {
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 820px) {
+  .apply-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .apply-intro {
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .apply-form {
+    padding: var(--space-8) var(--space-6);
+  }
+}

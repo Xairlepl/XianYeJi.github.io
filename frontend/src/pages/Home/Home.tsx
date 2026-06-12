@@ -1,11 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, Sprout, Snowflake, BadgeCheck, ShieldCheck } from 'lucide-react';
 import ProductCard from '../../components/ProductCard/ProductCard';
+import CategoryIcon from '../../utils/categoryIcons';
 import { mockApi } from '../../services/mockApi';
 import { setProductImageFallback } from '../../utils/imageFallback';
 import './Home.css';
 
 type HomeData = Awaited<ReturnType<typeof mockApi.getHomeData>>;
+
+const heroImages = [
+  'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600&h=900&fit=crop',
+  'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=1600&h=900&fit=crop',
+  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&h=900&fit=crop',
+];
+
+const serviceHighlights = [
+  { Icon: Sprout, title: '产地直采', desc: '合作基地统一分级，减少中间周转' },
+  { Icon: Snowflake, title: '冷链履约', desc: '生鲜、肉禽、乳品按品类控温发货' },
+  { Icon: BadgeCheck, title: '到仓质检', desc: '入仓抽检、溯源码、批次信息可查' },
+  { Icon: ShieldCheck, title: '售后无忧', desc: '坏果包赔，订单问题快速响应' },
+];
 
 const Home = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -40,7 +55,7 @@ const Home = () => {
       <main className="home" id="home-page">
         <div className="page-loading">
           <span className="loading-spinner" />
-          <span>正在从模拟后端加载首页内容...</span>
+          <span>正在加载首页内容...</span>
         </div>
       </main>
     );
@@ -48,50 +63,53 @@ const Home = () => {
 
   return (
     <main className="home" id="home-page">
-      {/* ======== Hero Banner ======== */}
       <section className="hero-section" id="hero-banner">
         <div className="hero-slider">
           {homeData.banners.map((banner, index) => (
             <div
               key={banner.id}
               className={`hero-slide ${index === currentBanner ? 'active' : ''}`}
-              style={{ background: banner.gradient }}
+              style={{
+                backgroundImage: `linear-gradient(90deg, rgba(20, 26, 19, 0.74) 0%, rgba(20, 26, 19, 0.48) 48%, rgba(20, 26, 19, 0.12) 100%), url(${heroImages[index % heroImages.length]})`,
+              }}
             >
               <div className="hero-content container">
-                <div className="hero-text">
+                <div className="hero-copy">
+                  <span className="hero-kicker">鲜野集直采档期</span>
                   <h1 className="hero-title">{banner.title}</h1>
                   <p className="hero-subtitle">{banner.subtitle}</p>
-                  <Link to={banner.link} className="btn btn-accent btn-lg hero-cta">
-                    立即选购 →
-                  </Link>
-                </div>
-                <div className="hero-visual">
-                  <div className="hero-decoration">
-                    <span className="deco-emoji deco-1">🍎</span>
-                    <span className="deco-emoji deco-2">🥬</span>
-                    <span className="deco-emoji deco-3">🌾</span>
-                    <span className="deco-emoji deco-4">🍊</span>
-                    <span className="deco-emoji deco-5">🥩</span>
+                  <div className="hero-actions">
+                    <Link to={banner.link} className="btn btn-accent btn-lg hero-cta">
+                      立即选购
+                    </Link>
+                    <Link to="/products" className="btn btn-secondary btn-lg hero-secondary">
+                      查看全部
+                    </Link>
+                  </div>
+                  <div className="hero-proof" aria-label="服务承诺">
+                    <span>48小时产地发货</span>
+                    <span>批次溯源</span>
+                    <span>坏果包赔</span>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {/* Dots */}
-        <div className="hero-dots">
-          {homeData.banners.map((_, index) => (
+
+        <div className="hero-dots" aria-label="切换轮播">
+          {homeData.banners.map((banner, index) => (
             <button
-              key={index}
+              key={banner.id}
               className={`hero-dot ${index === currentBanner ? 'active' : ''}`}
               onClick={() => setCurrentBanner(index)}
-              aria-label={`Banner ${index + 1}`}
+              aria-label={`切换到第 ${index + 1} 张轮播`}
+              type="button"
             />
           ))}
         </div>
       </section>
 
-      {/* ======== Platform Stats ======== */}
       <section className="home-stats-band">
         <div className="home-stats container">
           {homeData.platformStats.map((stat) => (
@@ -103,85 +121,95 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ======== Service Highlights ======== */}
-      <section className="service-section container">
+      <section className="service-section container" aria-label="服务优势">
         <div className="service-list">
-          {[
-            { icon: '🚚', title: '产地直发', desc: '源头直采，减少中间环节' },
-            { icon: '❄️', title: '冷链配送', desc: '全程冷链，锁住新鲜' },
-            { icon: '✅', title: '品质保障', desc: '严格质检，放心购买' },
-            { icon: '💰', title: '售后无忧', desc: '7天无理由退换货' },
-          ].map((item, i) => (
-            <div key={i} className="service-item glass" style={{ animationDelay: `${i * 0.1}s` }}>
-              <span className="service-icon">{item.icon}</span>
+          {serviceHighlights.map(({ Icon, title, desc }, index) => (
+            <div key={title} className="service-item" style={{ animationDelay: `${index * 0.08}s` }}>
+              <span className="service-icon">
+                <Icon size={24} />
+              </span>
               <div>
-                <h4>{item.title}</h4>
-                <p>{item.desc}</p>
+                <h4>{title}</h4>
+                <p>{desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ======== Categories ======== */}
       <section className="section container" id="categories-section">
         <div className="section-header">
-          <h2 className="section-title">🏷️ 精选分类</h2>
+          <div>
+            <span className="section-kicker">Category</span>
+            <h2 className="section-title">按餐桌场景选购</h2>
+          </div>
           <Link to="/products" className="section-more">
-            查看全部 →
+            全部分类
+            <ArrowRight size={16} />
           </Link>
         </div>
         <div className="category-grid">
-          {homeData.categories.map((cat, i) => (
+          {homeData.categories.map((cat, index) => (
             <Link
               to={`/products?category=${cat.id}`}
               key={cat.id}
               className="category-item"
-              style={{ animationDelay: `${i * 0.05}s` }}
+              style={{ animationDelay: `${index * 0.04}s` }}
             >
-              <span className="category-icon">{cat.icon}</span>
+              <span className="category-icon">
+                <CategoryIcon id={cat.id} size={28} />
+              </span>
               <span className="category-name">{cat.name}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ======== Hot Products ======== */}
       <section className="section container" id="hot-products-section">
         <div className="section-header">
-          <h2 className="section-title">🔥 热销爆款</h2>
+          <div>
+            <span className="section-kicker">Best Sellers</span>
+            <h2 className="section-title">本周热销</h2>
+          </div>
           <Link to="/products" className="section-more">
-            更多 →
+            更多商品
+            <ArrowRight size={16} />
           </Link>
         </div>
         <div className="products-grid">
-          {homeData.hotProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+          {homeData.hotProducts.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
       </section>
 
-      {/* ======== Fresh Products ======== */}
-      <section className="section container" id="fresh-products-section">
+      <section className="section container feature-band" id="fresh-products-section">
         <div className="section-header">
-          <h2 className="section-title">🌿 新鲜到家</h2>
+          <div>
+            <span className="section-kicker">New Arrival</span>
+            <h2 className="section-title">新鲜到家</h2>
+          </div>
           <Link to="/products" className="section-more">
-            更多 →
+            查看新货
+            <ArrowRight size={16} />
           </Link>
         </div>
         <div className="products-grid">
-          {homeData.freshProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+          {homeData.freshProducts.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
       </section>
 
-      {/* ======== Farm Stories ======== */}
       <section className="section container" id="farm-stories-section">
         <div className="section-header">
-          <h2 className="section-title">产地溯源</h2>
+          <div>
+            <span className="section-kicker">Origin</span>
+            <h2 className="section-title">产地溯源</h2>
+          </div>
           <Link to="/products" className="section-more">
-            按产地选购 →
+            按产地选购
+            <ArrowRight size={16} />
           </Link>
         </div>
         <div className="farm-story-grid">
@@ -193,7 +221,7 @@ const Home = () => {
                 onError={(event) => setProductImageFallback(event, story.title)}
               />
               <div className="farm-story-content">
-                <span className="farm-story-location">📍 {story.location}</span>
+                <span className="farm-story-location">{story.location}</span>
                 <h3>{story.title}</h3>
                 <p>{story.summary}</p>
                 <div className="farm-story-tags">
@@ -207,14 +235,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ======== Recommend ======== */}
       <section className="section container" id="recommend-section">
         <div className="section-header">
-          <h2 className="section-title">✨ 为你推荐</h2>
+          <div>
+            <span className="section-kicker">For You</span>
+            <h2 className="section-title">为你推荐</h2>
+          </div>
         </div>
         <div className="products-grid products-grid-dense">
-          {homeData.recommendProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+          {homeData.recommendProducts.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
       </section>

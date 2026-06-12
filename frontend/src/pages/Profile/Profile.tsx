@@ -1,9 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  Package,
+  MapPin,
+  Heart,
+  Ticket,
+  Star,
+  Bell,
+  Smartphone,
+  CreditCard,
+  Truck,
+  CheckCircle2,
+  ChevronRight,
+  Store,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useFavoriteStore } from '@/store/favoriteStore';
 import { useToastStore } from '@/store/toastStore';
-import { ORDER_STATUS_MAP } from '@/data/mockData';
+import { ORDER_STATUS_MAP, USER_ROLE_MAP } from '@/data/mockData';
 import { mockApi } from '@/services/mockApi';
 import { mockProducts } from '@/data/mockData';
 import { setProductImageFallback } from '@/utils/imageFallback';
@@ -69,12 +83,18 @@ const Profile = () => {
   const { asset, recentOrders, stats, notifications, coupons, addresses } = data;
 
   const menuItems = [
-    { icon: '📦', label: '我的订单', link: '/orders', count: recentOrders.length },
-    { icon: '📍', label: '收货地址', link: '/addresses', count: addresses.length },
-    { icon: '❤️', label: '我的收藏', link: '/favorites', count: favoriteCount },
-    { icon: '🎫', label: '优惠券', link: '/coupons', count: coupons.length },
-    { icon: '⭐', label: '我的评价', link: '/reviews', count: 3 },
-    { icon: '💬', label: '消息通知', link: '/notifications', count: notifications.filter((item) => !item.read).length },
+    { Icon: Package, label: '我的订单', link: '/orders', count: recentOrders.length },
+    { Icon: MapPin, label: '收货地址', link: '/addresses', count: addresses.length },
+    { Icon: Heart, label: '我的收藏', link: '/favorites', count: favoriteCount },
+    { Icon: Ticket, label: '优惠券', link: '/coupons', count: coupons.length },
+    { Icon: Star, label: '我的评价', link: '/reviews', count: 3 },
+    { Icon: Bell, label: '消息通知', link: '/notifications', count: notifications.filter((item) => !item.read).length },
+    ...(user.role === 'CUSTOMER'
+      ? [{ Icon: Store, label: '商家入驻', link: '/seller-apply', count: 0 }]
+      : []),
+    ...(user.role === 'SELLER'
+      ? [{ Icon: Store, label: '商家中心', link: '/seller', count: 0 }]
+      : []),
   ];
 
   return (
@@ -90,9 +110,12 @@ const Profile = () => {
               </span>
             </div>
             <h2 className="profile-username">{user.username}</h2>
-            <p className="profile-phone">📱 {formatPhone(user.phone)}</p>
+            <p className="profile-phone">
+              <Smartphone size={14} />
+              {formatPhone(user.phone)}
+            </p>
             <span className="profile-role-badge badge badge-fresh">
-              {user.role === 'CUSTOMER' ? '普通会员' : '商家'}
+              {USER_ROLE_MAP[user.role]?.label ?? '普通会员'}
             </span>
             <button
               className="btn btn-secondary btn-sm"
@@ -108,12 +131,14 @@ const Profile = () => {
 
           {/* Menu */}
           <nav className="profile-menu">
-            {menuItems.map((item) => (
-              <Link to={item.link} key={item.label} className="profile-menu-item">
-                <span className="menu-icon">{item.icon}</span>
-                <span className="menu-label">{item.label}</span>
-                {item.count > 0 && <span className="menu-count">{item.count}</span>}
-                <span className="menu-arrow">›</span>
+            {menuItems.map(({ Icon, label, link, count }) => (
+              <Link to={link} key={label} className="profile-menu-item">
+                <span className="menu-icon">
+                  <Icon size={18} />
+                </span>
+                <span className="menu-label">{label}</span>
+                {count > 0 && <span className="menu-count">{count}</span>}
+                <ChevronRight size={16} className="menu-arrow" />
               </Link>
             ))}
           </nav>
@@ -124,15 +149,17 @@ const Profile = () => {
           {/* Stats */}
           <div className="profile-stats">
             {[
-              { label: '待付款', value: stats.PENDING, icon: '💳' },
-              { label: '待发货', value: stats.PAID, icon: '📦' },
-              { label: '待收货', value: stats.SHIPPED, icon: '🚚' },
-              { label: '已完成', value: stats.COMPLETED, icon: '✅' },
-            ].map((stat) => (
-              <div key={stat.label} className="stat-item card">
-                <span className="stat-icon">{stat.icon}</span>
-                <span className="stat-value">{stat.value}</span>
-                <span className="stat-label">{stat.label}</span>
+              { label: '待付款', value: stats.PENDING, Icon: CreditCard },
+              { label: '待发货', value: stats.PAID, Icon: Package },
+              { label: '待收货', value: stats.SHIPPED, Icon: Truck },
+              { label: '已完成', value: stats.COMPLETED, Icon: CheckCircle2 },
+            ].map(({ label, value, Icon }) => (
+              <div key={label} className="stat-item card">
+                <span className="stat-icon">
+                  <Icon size={24} />
+                </span>
+                <span className="stat-value">{value}</span>
+                <span className="stat-label">{label}</span>
               </div>
             ))}
           </div>
@@ -156,7 +183,10 @@ const Profile = () => {
           <div className="profile-section">
             <div className="section-header">
               <h3 className="section-title" style={{ fontSize: 'var(--text-lg)' }}>最近订单</h3>
-              <Link to="/orders" className="section-more">查看全部 →</Link>
+              <Link to="/orders" className="section-more">
+                查看全部
+                <ChevronRight size={16} />
+              </Link>
             </div>
             <div className="recent-orders">
               {recentOrders.map((order) => (
@@ -216,7 +246,9 @@ const Profile = () => {
                   ))
                 ) : (
                   <div className="empty-state compact">
-                    <span style={{ fontSize: '3rem' }}>🤍</span>
+                    <span className="empty-icon">
+                      <Heart size={32} />
+                    </span>
                     <p>暂无收藏商品</p>
                     <Link to="/products" className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
                       去逛逛

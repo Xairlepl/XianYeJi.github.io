@@ -31,11 +31,23 @@
 }
 
 .address-phone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-neutral-600);
   margin-bottom: var(--space-3);
 }
 
+.address-phone svg,
+.address-detail svg {
+  flex: 0 0 auto;
+  color: var(--color-primary-600);
+}
+
 .address-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-neutral-700);
   line-height: 1.6;
 }

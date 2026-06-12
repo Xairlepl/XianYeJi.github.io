@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bot, User, Send, MessageCircle, X, ArrowRight } from 'lucide-react';
 import { chatService } from '@/services/chatService';
 import { setProductImageFallback } from '@/utils/imageFallback';
+import type { Product } from '@/types';
 import './AIChat.css';
 
 interface Message {
@@ -9,13 +11,13 @@ interface Message {
   type: 'user' | 'bot';
   text: string;
   action?: { type: string; target: string; label: string };
-  products?: any[];
+  products?: Product[];
 }
 
 const AIChat = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, type: 'bot', text: '您好！我是鲜野集智能客服🌾\n\n我可以帮您：\n• 查询商品\n• 推荐热销\n• 页面导航\n\n试试问我"有什么水果"！' },
+    { id: 1, type: 'bot', text: '您好！我是鲜野集智能小助手～\n\n我可以帮您：\n• 查询商品\n• 推荐热销\n• 页面导航\n\n试试问我"有什么水果"！' },
   ]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,7 +59,9 @@ const AIChat = () => {
       {open && (
         <div className="chat-window">
           <div className="chat-header">
-            <div className="chat-avatar">🤖</div>
+            <div className="chat-avatar">
+              <Bot size={22} />
+            </div>
             <div className="chat-title">
               <h3>智能客服</h3>
               <p>在线为您服务</p>
@@ -67,13 +71,16 @@ const AIChat = () => {
           <div className="chat-messages">
             {messages.map((msg) => (
               <div key={msg.id} className={`chat-message ${msg.type}`}>
-                <div className="message-avatar">{msg.type === 'user' ? '👤' : '🤖'}</div>
+                <div className="message-avatar">
+                  {msg.type === 'user' ? <User size={18} /> : <Bot size={18} />}
+                </div>
                 <div>
                   <div className="message-bubble">{msg.text}</div>
                   {msg.action && (
                     <div className="message-action">
                       <button className="btn btn-primary btn-sm" onClick={() => handleAction(msg.action!.target)}>
-                        {msg.action.label} →
+                        {msg.action.label}
+                        <ArrowRight size={14} />
                       </button>
                     </div>
                   )}
@@ -104,15 +111,19 @@ const AIChat = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             />
-            <button className="chat-send-btn" onClick={handleSend} disabled={!input.trim()}>
-              ➤
+            <button className="chat-send-btn" onClick={handleSend} disabled={!input.trim()} aria-label="发送">
+              <Send size={18} />
             </button>
           </div>
         </div>
       )}
 
-      <button className={`chat-fab ${open ? 'active' : ''}`} onClick={() => setOpen(!open)}>
-        {open ? '✕' : '💬'}
+      <button
+        className={`chat-fab ${open ? 'active' : ''}`}
+        onClick={() => setOpen(!open)}
+        aria-label={open ? '关闭智能客服' : '打开智能客服'}
+      >
+        {open ? <X size={26} /> : <MessageCircle size={26} />}
       </button>
     </div>
   );

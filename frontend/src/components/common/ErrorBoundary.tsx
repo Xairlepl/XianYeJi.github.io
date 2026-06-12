@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -28,7 +29,9 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="container section" style={{ textAlign: 'center', padding: '5rem 1rem' }}>
           <div className="empty-state">
-            <span className="empty-icon" style={{ fontSize: '4rem' }}>⚠️</span>
+            <span className="empty-icon" style={{ color: 'var(--color-error)' }}>
+              <AlertTriangle size={40} />
+            </span>
             <h2 style={{ marginTop: '1rem' }}>页面出现错误</h2>
             <p style={{ color: 'var(--color-neutral-600)', marginTop: '0.5rem' }}>
               {this.state.error?.message || '未知错误'}

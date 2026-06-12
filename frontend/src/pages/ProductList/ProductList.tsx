@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { ChevronRight, ArrowUp, ArrowDown, SlidersHorizontal, ShoppingBag, PackageOpen } from 'lucide-react';
 import ProductCard from '../../components/ProductCard/ProductCard';
+import CategoryIcon from '../../utils/categoryIcons';
 import { mockApi } from '../../services/mockApi';
 import type { Category, Product } from '../../types';
 import './ProductList.css';
+
+const sortOptions: { key: 'default' | 'price-asc' | 'price-desc' | 'sales'; label: string; icon?: React.ReactNode }[] = [
+  { key: 'default', label: '综合' },
+  { key: 'sales', label: '销量' },
+  { key: 'price-asc', label: '价格', icon: <ArrowUp size={13} /> },
+  { key: 'price-desc', label: '价格', icon: <ArrowDown size={13} /> },
+];
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,13 +60,17 @@ const ProductList = () => {
     setSearchParams(nextParams);
   };
 
+  const activeCategoryName = activeCategory
+    ? categories.find((c) => c.id === activeCategory)?.name
+    : '全部商品';
+
   return (
     <main className="product-list-page container section" id="product-list-page">
       {/* Breadcrumb */}
       <nav className="breadcrumb">
         <Link to="/">首页</Link>
-        <span>/</span>
-        <span>{activeCategory ? categories.find((c) => c.id === activeCategory)?.name : '全部商品'}</span>
+        <ChevronRight size={14} />
+        <span>{activeCategoryName}</span>
       </nav>
 
       <div className="product-list-layout">
@@ -70,6 +83,7 @@ const ProductList = () => {
                 className={`sidebar-cat-btn ${activeCategory === null ? 'active' : ''}`}
                 onClick={() => setCategory(null)}
               >
+                <ShoppingBag size={18} />
                 全部商品
               </button>
             </li>
@@ -79,7 +93,8 @@ const ProductList = () => {
                   className={`sidebar-cat-btn ${activeCategory === cat.id ? 'active' : ''}`}
                   onClick={() => setCategory(cat.id)}
                 >
-                  <span>{cat.icon}</span> {cat.name}
+                  <CategoryIcon id={cat.id} size={18} />
+                  {cat.name}
                 </button>
               </li>
             ))}
@@ -90,19 +105,18 @@ const ProductList = () => {
         <div className="product-list-main">
           {/* Sort bar */}
           <div className="sort-bar glass">
-            <span className="sort-label">排序：</span>
-            {[
-              { key: 'default', label: '综合' },
-              { key: 'sales', label: '销量' },
-              { key: 'price-asc', label: '价格↑' },
-              { key: 'price-desc', label: '价格↓' },
-            ].map((item) => (
+            <span className="sort-label">
+              <SlidersHorizontal size={15} />
+              排序
+            </span>
+            {sortOptions.map((item) => (
               <button
                 key={item.key}
                 className={`sort-btn ${sortBy === item.key ? 'active' : ''}`}
-                onClick={() => setSortBy(item.key as typeof sortBy)}
+                onClick={() => setSortBy(item.key)}
               >
                 {item.label}
+                {item.icon}
               </button>
             ))}
             <label className="stock-filter">
@@ -117,15 +131,15 @@ const ProductList = () => {
           </div>
 
           <div className="list-meta">
-            {keyword ? <span>搜索结果：{keyword}</span> : <span>模拟接口更新时间：{updatedAt}</span>}
-            <span>筛选、排序、库存切换均通过 mockApi 异步返回</span>
+            {keyword ? <span>“{keyword}” 的搜索结果</span> : <span>{activeCategoryName} · 为您精选 {total} 件优质好物</span>}
+            <span>数据更新于 {updatedAt}</span>
           </div>
 
           {/* Products */}
           {loading ? (
             <div className="list-loading">
               <span className="loading-spinner" />
-              <span>正在请求模拟商品接口...</span>
+              <span>正在加载商品...</span>
             </div>
           ) : products.length > 0 ? (
             <div className="products-grid">
@@ -135,8 +149,13 @@ const ProductList = () => {
             </div>
           ) : (
             <div className="empty-state">
-              <span className="empty-icon">🔍</span>
-              <p>暂无该分类商品</p>
+              <span className="empty-icon">
+                <PackageOpen size={40} />
+              </span>
+              <p>没有找到相关商品</p>
+              <Link to="/products" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
+                查看全部商品
+              </Link>
             </div>
           )}
         </div>

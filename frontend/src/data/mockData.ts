@@ -5,10 +5,13 @@ import type {
   Category,
   Coupon,
   FarmStory,
+  MockAccount,
   Notification,
   Order,
   Product,
   ProductReview,
+  SellerApplication,
+  Traceability,
   User,
   UserAsset,
 } from '../types';
@@ -71,7 +74,7 @@ export const mockProducts: Product[] = [
     stock: 500,
     tags: ['新鲜', '包邮'],
     sellerId: 1,
-    sellerName: '烟台果园直供',
+    sellerName: '王五果业',
   },
   {
     id: 2,
@@ -88,8 +91,8 @@ export const mockProducts: Product[] = [
     sales: 1852,
     stock: 300,
     tags: ['爆款', '包邮'],
-    sellerId: 2,
-    sellerName: '赣州果农小刘',
+    sellerId: 1,
+    sellerName: '王五果业',
   },
   {
     id: 3,
@@ -214,8 +217,8 @@ export const mockProducts: Product[] = [
     sales: 3450,
     stock: 400,
     tags: ['应季', '包邮'],
-    sellerId: 9,
-    sellerName: '海南热带果园',
+    sellerId: 1,
+    sellerName: '王五果业',
   },
   {
     id: 10,
@@ -606,6 +609,188 @@ export const mockUser: User = {
   phone: '13812341234',
   avatar: '',
   role: 'CUSTOMER',
+  status: 'ACTIVE',
+  createdAt: '2026-03-12',
+};
+
+// ============ 多用户演示账户（含登录密码，仅模拟环境） ============
+export const mockAccounts: MockAccount[] = [
+  {
+    id: 1,
+    username: '张三',
+    password: '123456',
+    phone: '13812341234',
+    avatar: '',
+    role: 'CUSTOMER',
+    status: 'ACTIVE',
+    createdAt: '2026-03-12',
+  },
+  {
+    id: 2,
+    username: 'admin',
+    password: 'admin123',
+    phone: '13900001111',
+    avatar: '',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    createdAt: '2026-01-01',
+  },
+  {
+    id: 3,
+    username: '李四',
+    password: '123456',
+    phone: '13755556666',
+    avatar: '',
+    role: 'CUSTOMER',
+    status: 'ACTIVE',
+    createdAt: '2026-04-02',
+  },
+  {
+    id: 4,
+    username: '果园王五',
+    password: '123456',
+    phone: '13633334444',
+    avatar: '',
+    role: 'SELLER',
+    status: 'ACTIVE',
+    createdAt: '2026-02-18',
+    sellerId: 1,
+    shopName: '王五果业',
+  },
+  {
+    id: 5,
+    username: '赵六',
+    password: '123456',
+    phone: '13511112222',
+    avatar: '',
+    role: 'CUSTOMER',
+    status: 'DISABLED',
+    createdAt: '2026-05-06',
+  },
+];
+
+export const USER_ROLE_MAP: Record<string, { label: string; color: string }> = {
+  CUSTOMER: { label: '普通会员', color: '#2f8f3a' },
+  SELLER: { label: '入驻商家', color: '#b45309' },
+  ADMIN: { label: '管理员', color: '#7c3aed' },
+};
+
+// ============ 商家入驻申请 ============
+export const mockSellerApplications: SellerApplication[] = [
+  {
+    id: 1,
+    userId: 3,
+    username: '李四',
+    shopName: '李四山货铺',
+    contactPhone: '13755556666',
+    mainCategory: '干货特产',
+    description: '主营秦岭山区核桃、木耳、香菇等农家干货，有稳定货源和三年电商经验。',
+    status: 'PENDING',
+    createdAt: '2026-06-08 14:20',
+  },
+];
+
+export const APPLICATION_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  PENDING: { label: '待审核', color: '#d98a16' },
+  APPROVED: { label: '已通过', color: '#2f8f3a' },
+  REJECTED: { label: '已驳回', color: '#c83f32' },
+};
+
+// ============ 商品溯源信息（按商品确定性生成） ============
+const pad2 = (value: number) => String(value).padStart(2, '0');
+
+const PLANTING_METHOD_MAP: Record<number, string> = {
+  1: '生态果园种植，套袋防虫，自然成熟后分批采收',
+  2: '高山轮作种植，物理防虫 + 人工除草，不使用除草剂',
+  3: '原产地单一品种连片种植，收获后低温仓储原粮',
+  4: '牧场散养 / 放养模式，饲喂记录全程登记可查',
+  5: '近海捕捞 / 生态养殖，离水后全程冰鲜处理',
+  6: '原产地自然晾晒与低温烘干，无硫熏处理',
+  7: '高山茶园人工采摘，当季鲜叶传统工艺制作',
+  8: '牧场直供奶源，低温灭菌后冷链灌装',
+};
+
+const HARVEST_TITLE_MAP: Record<number, string> = {
+  1: '果园采收',
+  2: '基地采收',
+  3: '原粮收获',
+  4: '出栏检疫',
+  5: '捕捞上岸',
+  6: '原料采收',
+  7: '鲜叶采摘',
+  8: '奶源采集',
+};
+
+const INSPECTION_ITEMS_MAP: Record<number, string[]> = {
+  1: ['农药残留', '糖度抽检', '果径分级'],
+  2: ['农药残留', '重金属', '新鲜度'],
+  3: ['重金属', '黄曲霉毒素', '水分含量'],
+  4: ['兽药残留', '检疫证明', '微生物'],
+  5: ['重金属', '微生物', '鲜度指标'],
+  6: ['二氧化硫', '黄曲霉毒素', '水分含量'],
+  7: ['农药残留', '重金属', '感官审评'],
+  8: ['微生物', '蛋白质含量', '抗生素残留'],
+};
+
+export const buildTraceability = (product: Product): Traceability => {
+  const day = (product.id % 18) + 1;
+  const harvestDate = `2026-06-${pad2(day)}`;
+  const nextDay = `2026-06-${pad2(day + 1)}`;
+  const thirdDay = `2026-06-${pad2(day + 2)}`;
+
+  const certifications = ['绿色食品认证'];
+  if (product.tags.includes('有机')) certifications.push('有机产品认证');
+  if (product.id % 2 === 0) certifications.push('GAP 良好农业规范');
+  if (product.id % 3 === 0) certifications.push('地理标志保护产品');
+
+  return {
+    traceCode: `XYJ${pad2(product.categoryId)}${String(product.id).padStart(4, '0')}${pad2(day)}`,
+    batchNo: `B202606${pad2(day)}-${String(product.id).padStart(3, '0')}`,
+    harvestDate,
+    grower: product.sellerName,
+    growerIntro: `${product.origin}本地经营主体，与鲜野集签约直供，种植 / 养殖过程接受平台与第三方双重抽检。`,
+    plantingMethod: PLANTING_METHOD_MAP[product.categoryId] ?? '生态种植，过程记录可追溯',
+    certifications,
+    inspection: {
+      agency: '华检农产品质量检测中心',
+      reportNo: `HJ2026-${String(product.id * 37 + 1000).slice(0, 4)}`,
+      date: nextDay,
+      result: '全部合格',
+      items: INSPECTION_ITEMS_MAP[product.categoryId] ?? ['农药残留', '重金属', '微生物'],
+    },
+    steps: [
+      {
+        time: `${harvestDate} 06:30`,
+        title: HARVEST_TITLE_MAP[product.categoryId] ?? '产地采收',
+        desc: '按成熟批次采收，采收记录同步上传溯源系统',
+        location: product.origin,
+      },
+      {
+        time: `${harvestDate} 14:30`,
+        title: '分拣包装',
+        desc: '人工分级 + 防损包装，赋予唯一批次溯源码',
+        location: `${product.origin} · 产地分拣中心`,
+      },
+      {
+        time: `${nextDay} 09:00`,
+        title: '入仓质检',
+        desc: '第三方机构抽检，检测项目全部合格后放行',
+        location: '鲜野集产地仓',
+      },
+      {
+        time: `${nextDay} 18:00`,
+        title: '冷链运输',
+        desc: '全程控温运输，温度数据实时回传监控',
+        location: '干线冷链在途',
+      },
+      {
+        time: `${thirdDay} 07:00`,
+        title: '到达城市仓',
+        desc: '入库复检合格，等待按订单分拨配送',
+        location: '城市前置仓',
+      },
+    ],
+  };
 };
 
 // ============ 地址、资产、优惠和消息 ============

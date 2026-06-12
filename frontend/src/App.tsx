@@ -18,6 +18,17 @@ import Coupons from './pages/Coupons/Coupons';
 import Notifications from './pages/Notifications/Notifications';
 import Reviews from './pages/Reviews/Reviews';
 import NotFound from './pages/NotFound/NotFound';
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminProducts from './pages/Admin/AdminProducts';
+import AdminOrders from './pages/Admin/AdminOrders';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminApplications from './pages/Admin/AdminApplications';
+import SellerLayout from './pages/Seller/SellerLayout';
+import SellerDashboard from './pages/Seller/SellerDashboard';
+import SellerProducts from './pages/Seller/SellerProducts';
+import SellerOrders from './pages/Seller/SellerOrders';
+import SellerApply from './pages/SellerApply/SellerApply';
 import './index.css';
 
 function App() {
@@ -30,6 +41,22 @@ function App() {
         <Routes>
           {/* Login page — no header/footer */}
           <Route path="/login" element={<Login />} />
+
+          {/* Admin portal — standalone layout, role-guarded */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="applications" element={<AdminApplications />} />
+          </Route>
+
+          {/* Seller portal — standalone layout, role-guarded */}
+          <Route path="/seller" element={<SellerLayout />}>
+            <Route index element={<SellerDashboard />} />
+            <Route path="products" element={<SellerProducts />} />
+            <Route path="orders" element={<SellerOrders />} />
+          </Route>
 
           {/* Main layout with header/footer */}
           <Route
@@ -49,6 +76,7 @@ function App() {
                   <Route path="/coupons" element={<Coupons />} />
                   <Route path="/notifications" element={<Notifications />} />
                   <Route path="/reviews" element={<Reviews />} />
+                  <Route path="/seller-apply" element={<SellerApply />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />

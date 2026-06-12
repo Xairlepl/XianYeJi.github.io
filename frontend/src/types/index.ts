@@ -76,6 +76,32 @@ export interface User {
   phone: string;
   avatar: string;
   role: 'CUSTOMER' | 'SELLER' | 'ADMIN';
+  status?: 'ACTIVE' | 'DISABLED';
+  createdAt?: string;
+  /** 商家账号绑定的店铺 ID（与商品 sellerId 对应） */
+  sellerId?: number;
+  /** 商家店铺名称 */
+  shopName?: string;
+}
+
+// 带登录凭证的演示账户（仅模拟环境使用）
+export interface MockAccount extends User {
+  password: string;
+}
+
+// 商家入驻申请
+export interface SellerApplication {
+  id: number;
+  userId: number;
+  username: string;
+  shopName: string;
+  contactPhone: string;
+  mainCategory: string;
+  description: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+  reviewedAt?: string;
+  rejectReason?: string;
 }
 
 // 会员资产
@@ -114,6 +140,33 @@ export interface FarmStory {
   image: string;
   summary: string;
   tags: string[];
+}
+
+// 溯源流通节点
+export interface TraceStep {
+  time: string;
+  title: string;
+  desc: string;
+  location: string;
+}
+
+// 商品溯源信息
+export interface Traceability {
+  traceCode: string;
+  batchNo: string;
+  harvestDate: string;
+  grower: string;
+  growerIntro: string;
+  plantingMethod: string;
+  certifications: string[];
+  inspection: {
+    agency: string;
+    reportNo: string;
+    date: string;
+    result: string;
+    items: string[];
+  };
+  steps: TraceStep[];
 }
 
 // 商品评价

@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, ShoppingCart, User, Menu, Sparkles, ShieldCheck, Store } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import './Header.css';
+
+const navLinks = [
+  { path: '/', label: '首页' },
+  { path: '/products', label: '全部商品' },
+  { path: '/products?category=1', label: '应季鲜果' },
+  { path: '/products?category=2', label: '时令蔬菜' },
+];
 
 const Header = () => {
   const location = useLocation();
@@ -11,19 +19,22 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const cartCount = useCartStore((state) => state.count);
-  const { user, isAuthenticated } = useAuthStore();
   const refreshCart = useCartStore((state) => state.refreshCount);
-
-  const navLinks = [
-    { path: '/', label: '首页' },
-    { path: '/products', label: '全部商品' },
-    { path: '/products?category=1', label: '新鲜水果' },
-    { path: '/products?category=2', label: '时令蔬菜' },
-  ];
+  const { user, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     refreshCart();
   }, [location.pathname, refreshCart]);
+
+  const isActiveLink = (path: string) => {
+    const [pathname, query] = path.split('?');
+    if (location.pathname !== pathname) return false;
+    if (!query) return location.search === '' || pathname !== '/products';
+
+    const expected = new URLSearchParams(query);
+    const current = new URLSearchParams(location.search);
+    return Array.from(expected.entries()).every(([key, value]) => current.get(key) === value);
+  };
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -32,43 +43,23 @@ const Header = () => {
   };
 
   return (
-    <header className="header glass" id="main-header">
+    <header className="header" id="main-header">
       <div className="header-inner container">
-        {/* Logo */}
-        <Link to="/" className="header-logo" id="logo-link">
-          <span className="logo-icon">🌾</span>
-          <div className="logo-text">
+        <Link to="/" className="header-logo" id="logo-link" aria-label="鲜野集首页">
+          <span className="logo-mark">鲜</span>
+          <span className="logo-copy">
             <span className="logo-name">鲜野集</span>
-            <span className="logo-slogan">原生态 · 产地直发</span>
-          </div>
+            <span className="logo-slogan">产地直发 · 当季严选</span>
+          </span>
         </Link>
 
-        {/* Search */}
-        <form className="header-search" id="header-search" onSubmit={handleSearch}>
-          <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
-          <input
-            type="text"
-            placeholder="搜索农产品，如：苹果、大米、龙井茶..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="search-input"
-            id="search-input"
-          />
-          <button className="search-btn btn btn-primary btn-sm" id="search-btn">
-            搜索
-          </button>
-        </form>
-
-        {/* Nav */}
-        <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
+        <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`} aria-label="主导航">
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
-              className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}
+              className={`nav-link ${isActiveLink(link.path) ? 'active' : ''}`}
+              aria-current={isActiveLink(link.path) ? 'page' : undefined}
               onClick={() => setMobileMenuOpen(false)}
             >
               {link.label}
@@ -76,42 +67,82 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Actions */}
+        <form className="header-search" id="header-search" onSubmit={handleSearch}>
+          <Search className="search-icon" size={18} />
+          <input
+            type="text"
+            placeholder="搜索苹果、大米、龙井茶..."
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            className="search-input"
+            id="search-input"
+          />
+          <button className="search-btn btn btn-primary btn-sm" id="search-btn" type="submit">
+            <Sparkles size={14} />
+            搜索
+          </button>
+        </form>
+
         <div className="header-actions">
-          <Link to="/cart" className="action-btn" id="cart-btn" title="购物车">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
+          <Link to="/cart" className="action-btn" id="cart-btn" title="购物车" aria-label="购物车">
+            <ShoppingCart size={21} />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
-          <Link to="/profile" className="action-btn" id="profile-btn" title="个人中心">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+
+          <Link to="/profile" className="action-btn" id="profile-btn" title="个人中心" aria-label="个人中心">
+            <User size={21} />
           </Link>
+
+          {isAuthenticated && user?.role === 'ADMIN' && (
+            <Link to="/admin" className="btn btn-secondary btn-sm header-admin-btn" id="admin-btn">
+              <ShieldCheck size={14} />
+              管理后台
+            </Link>
+          )}
+
+          {isAuthenticated && user?.role === 'SELLER' && (
+            <Link to="/seller" className="btn btn-secondary btn-sm header-admin-btn" id="seller-btn">
+              <Store size={14} />
+              商家中心
+            </Link>
+          )}
+
           {isAuthenticated && user ? (
             <span className="header-username" title={user.username}>
               {user.username}
             </span>
           ) : (
-            <Link to="/login" className="btn btn-primary btn-sm header-login-btn" id="login-btn">
+            <Link to="/login" className="btn btn-secondary btn-sm header-login-btn" id="login-btn">
               登录
             </Link>
           )}
+
           <button
             className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="菜单"
+            type="button"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label="打开导航菜单"
+            aria-expanded={mobileMenuOpen}
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <Menu size={20} />
           </button>
         </div>
       </div>
+
+      {/* 移动端搜索栏（仅小屏显示） */}
+      <form className="header-search-mobile" onSubmit={handleSearch}>
+        <Search size={17} className="search-icon" />
+        <input
+          type="text"
+          placeholder="搜索苹果、大米、龙井茶..."
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
+          aria-label="搜索商品"
+        />
+        <button className="btn btn-primary btn-sm" type="submit">
+          搜索
+        </button>
+      </form>
     </header>
   );
 };

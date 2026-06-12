@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Star, PenLine } from 'lucide-react';
+import StarRating from '@/components/common/StarRating/StarRating';
 import { useAuthStore } from '@/store/authStore';
 import { mockProducts } from '@/data/mockData';
 import { setProductImageFallback } from '@/utils/imageFallback';
@@ -56,13 +58,18 @@ const Reviews = () => {
 
   return (
     <main className="reviews-page container section">
-      <h1 className="page-title">⭐ 我的评价</h1>
+      <h1 className="page-title">
+        <Star size={26} />
+        我的评价
+      </h1>
 
       {reviews.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">✍️</span>
+          <span className="empty-icon">
+            <PenLine size={40} />
+          </span>
           <p>暂无评价</p>
-          <Link to="/orders" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+          <Link to="/orders" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>
             去订单中心
           </Link>
         </div>
@@ -80,10 +87,7 @@ const Reviews = () => {
               </Link>
               <div className="review-content">
                 <div className="review-header">
-                  <div className="review-rating">
-                    {'★'.repeat(review.rating)}
-                    {'☆'.repeat(5 - review.rating)}
-                  </div>
+                  <StarRating rating={review.rating} size={16} />
                   <span className="review-date">{review.createdAt}</span>
                 </div>
                 <p className="review-text">{review.content}</p>

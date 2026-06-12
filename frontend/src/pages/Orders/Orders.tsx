@@ -1,5 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ClipboardList,
+  CreditCard,
+  Package,
+  Truck,
+  CheckCircle2,
+  Inbox,
+  MapPin,
+  Receipt,
+  MessageSquareText,
+  ChevronDown,
+  ChevronUp,
+  Star,
+} from 'lucide-react';
 import { ORDER_STATUS_MAP } from '../../data/mockData';
 import { mockApi } from '../../services/mockApi';
 import type { Order } from '../../types';
@@ -14,6 +28,7 @@ const Orders = () => {
   const [stats, setStats] = useState({ PENDING: 0, PAID: 0, SHIPPED: 0, COMPLETED: 0 });
   const [loading, setLoading] = useState(true);
   const [pendingOrderId, setPendingOrderId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: 'ALL', label: '全部' },
@@ -51,13 +66,32 @@ const Orders = () => {
 
   return (
     <main className="orders-page container section" id="orders-page">
-      <h1 className="page-title">📋 我的订单</h1>
+      <h1 className="page-title">
+        <ClipboardList size={26} />
+        我的订单
+      </h1>
 
       <div className="orders-summary">
-        <div><strong>{stats.PENDING}</strong><span>待付款</span></div>
-        <div><strong>{stats.PAID}</strong><span>待发货</span></div>
-        <div><strong>{stats.SHIPPED}</strong><span>待收货</span></div>
-        <div><strong>{stats.COMPLETED}</strong><span>已完成</span></div>
+        <div>
+          <span className="summary-icon"><CreditCard size={20} /></span>
+          <strong>{stats.PENDING}</strong>
+          <span>待付款</span>
+        </div>
+        <div>
+          <span className="summary-icon"><Package size={20} /></span>
+          <strong>{stats.PAID}</strong>
+          <span>待发货</span>
+        </div>
+        <div>
+          <span className="summary-icon"><Truck size={20} /></span>
+          <strong>{stats.SHIPPED}</strong>
+          <span>待收货</span>
+        </div>
+        <div>
+          <span className="summary-icon"><CheckCircle2 size={20} /></span>
+          <strong>{stats.COMPLETED}</strong>
+          <span>已完成</span>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -81,9 +115,11 @@ const Orders = () => {
         </div>
       ) : orders.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">📭</span>
+          <span className="empty-icon">
+            <Inbox size={40} />
+          </span>
           <p>暂无相关订单</p>
-          <Link to="/products" className="btn btn-primary" style={{ marginTop: '1rem' }}>去逛逛</Link>
+          <Link to="/products" className="btn btn-primary" style={{ marginTop: 'var(--space-4)' }}>去逛逛</Link>
         </div>
       ) : (
         <div className="orders-list">
@@ -161,11 +197,71 @@ const Orders = () => {
                     </button>
                   )}
                   {order.status === 'COMPLETED' && (
-                    <button className="btn btn-secondary btn-sm">去评价</button>
+                    <Link to="/reviews" className="btn btn-secondary btn-sm">
+                      <Star size={14} />
+                      去评价
+                    </Link>
                   )}
-                  <button className="btn btn-secondary btn-sm">查看详情</button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
+                  >
+                    {expandedId === order.id ? (
+                      <>
+                        收起详情
+                        <ChevronUp size={14} />
+                      </>
+                    ) : (
+                      <>
+                        查看详情
+                        <ChevronDown size={14} />
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
+
+              {/* 订单详情展开面板 */}
+              {expandedId === order.id && (
+                <div className="order-detail-panel">
+                  <div className="order-detail-block">
+                    <h4>
+                      <MapPin size={15} />
+                      收货信息
+                    </h4>
+                    <p>
+                      {order.address.receiver} · {order.address.phone}
+                    </p>
+                    <p>
+                      {order.address.province} {order.address.city} {order.address.district}{' '}
+                      {order.address.detail}
+                    </p>
+                  </div>
+                  <div className="order-detail-block">
+                    <h4>
+                      <Receipt size={15} />
+                      支付信息
+                    </h4>
+                    <p>商品总额：¥{order.totalAmount.toFixed(2)}</p>
+                    <p>运费：¥0.00（全场包邮）</p>
+                    <p>
+                      实付金额：
+                      <strong style={{ color: 'var(--color-error)' }}>
+                        ¥{order.payAmount.toFixed(2)}
+                      </strong>
+                    </p>
+                  </div>
+                  <div className="order-detail-block">
+                    <h4>
+                      <MessageSquareText size={15} />
+                      订单信息
+                    </h4>
+                    <p>订单编号：{order.orderNo}</p>
+                    <p>下单时间：{order.createdAt}</p>
+                    <p>备注：{order.remark || '无'}</p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

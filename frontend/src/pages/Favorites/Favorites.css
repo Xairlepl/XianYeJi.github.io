@@ -48,9 +48,16 @@
 }
 
 .favorite-origin {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--text-sm);
   color: var(--color-neutral-600);
   margin-bottom: var(--space-3);
+}
+
+.favorite-origin svg {
+  color: var(--color-primary-600);
 }
 
 .favorite-footer {

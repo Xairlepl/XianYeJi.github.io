@@ -2,13 +2,6 @@
   min-height: 60vh;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-6);
-}
-
 .notifications-list {
   display: grid;
   gap: var(--space-3);
@@ -32,8 +25,30 @@
 }
 
 .notification-icon {
-  font-size: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-500);
+}
+
+.notification-icon.type-order {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.notification-icon.type-promotion {
+  background: var(--color-accent-50);
+  color: var(--color-accent-500);
+}
+
+.notification-icon.type-system {
+  background: #e8f1f8;
+  color: var(--color-info);
 }
 
 .notification-content {

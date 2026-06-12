@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MapPin, MapPinOff, Phone, Trash2, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import { mockApi } from '@/services/mockApi';
@@ -53,11 +54,16 @@ const Addresses = () => {
 
   return (
     <main className="addresses-page container section">
-      <h1 className="page-title">📍 收货地址</h1>
+      <h1 className="page-title">
+        <MapPin size={26} />
+        收货地址
+      </h1>
 
       {addresses.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">📦</span>
+          <span className="empty-icon">
+            <MapPinOff size={40} />
+          </span>
           <p>暂无收货地址</p>
         </div>
       ) : (
@@ -69,18 +75,24 @@ const Addresses = () => {
                   {addr.receiver}
                   {addr.isDefault && <span className="address-badge">默认</span>}
                 </div>
-                <div className="address-phone">{addr.phone}</div>
+                <div className="address-phone">
+                  <Phone size={13} />
+                  {addr.phone}
+                </div>
                 <div className="address-detail">
+                  <MapPin size={13} />
                   {addr.province} {addr.city} {addr.district} {addr.detail}
                 </div>
               </div>
               <div className="address-actions">
                 {!addr.isDefault && (
                   <button className="btn btn-primary btn-sm" onClick={() => handleSetDefault(addr.id)}>
+                    <CheckCircle2 size={14} />
                     设为默认
                   </button>
                 )}
                 <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(addr.id)}>
+                  <Trash2 size={14} />
                   删除
                 </button>
               </div>
