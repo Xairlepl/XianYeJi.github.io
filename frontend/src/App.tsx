@@ -34,7 +34,7 @@ import './index.css';
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename="/XianYeJi.github.io">
         <ScrollToTop />
         <Toast />
         <AIChat />
