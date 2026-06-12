@@ -8,6 +8,7 @@ import Footer from './components/Footer/Footer';
 import Home from './pages/Home/Home';
 import ProductList from './pages/ProductList/ProductList';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import TracePage from './pages/TracePage/TracePage';
 import Cart from './pages/Cart/Cart';
 import Login from './pages/Login/Login';
 import Profile from './pages/Profile/Profile';
@@ -70,6 +71,7 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/products" element={<ProductList />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/trace/:traceCode" element={<TracePage />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/orders" element={<Orders />} />

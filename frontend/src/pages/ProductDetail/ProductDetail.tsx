@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -16,10 +16,6 @@ import {
   ShieldCheck,
   Leaf,
   PackageX,
-  ClipboardCheck,
-  PackageCheck,
-  Warehouse,
-  Route,
   MessageCircle,
   Send,
   Store,
@@ -30,16 +26,10 @@ import { useToastStore } from '@/store/toastStore';
 import { useFavoriteStore } from '@/store/favoriteStore';
 import { useAuthStore } from '@/store/authStore';
 import ProductCard from '@/components/ProductCard/ProductCard';
-import TraceQrCode from '@/components/common/TraceQrCode/TraceQrCode';
 import StarRating from '@/components/common/StarRating/StarRating';
 import type { Product, ProductReview, ServiceConversation, Traceability } from '@/types';
 import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductDetail.css';
-
-const shouldOpenTraceTab = () => {
-  if (typeof window === 'undefined') return false;
-  return window.location.hash === '#origin-trace' || new URLSearchParams(window.location.search).has('traceCode');
-};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -74,7 +64,7 @@ const ProductDetail = () => {
       setReviews(data.reviews);
       setTraceability(data.traceability);
       setQuantity(1);
-      setActiveTab(shouldOpenTraceTab() ? 'origin' : 'detail');
+      setActiveTab('detail');
       setServiceOpen(false);
       setServiceConversation(null);
       setServiceInput('');
@@ -161,24 +151,6 @@ const ProductDetail = () => {
       setServiceSending(false);
     }
   };
-
-  const traceQrValue = useMemo(() => {
-    if (!traceability) return '';
-    if (typeof window === 'undefined') return traceability.traceCode;
-
-    const traceUrl = new URL(window.location.href);
-    traceUrl.searchParams.set('traceCode', traceability.traceCode);
-    traceUrl.hash = 'origin-trace';
-    return traceUrl.toString();
-  }, [traceability]);
-
-  useEffect(() => {
-    if (activeTab !== 'origin' || !traceability || !shouldOpenTraceTab()) return;
-
-    window.requestAnimationFrame(() => {
-      document.getElementById('origin-trace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }, [activeTab, traceability]);
 
   if (loading) {
     return (
@@ -503,103 +475,21 @@ const ProductDetail = () => {
               </div>
             </div>
           ) : activeTab === 'origin' ? (
-            <div className="tab-origin" id="origin-trace">
+            <div className="tab-origin">
               {traceability ? (
-                <>
-                  <div className="trace-grid">
-                    <div className="trace-code-card">
-                      <span className="trace-qr">
-                        <TraceQrCode
-                          value={traceQrValue}
-                          size={104}
-                          title={`${product.name} 产地溯源二维码`}
-                        />
-                      </span>
-                      <div className="trace-code-info">
-                        <small>商品溯源码</small>
-                        <strong className="trace-code">{traceability.traceCode}</strong>
-                        <div className="trace-code-meta">
-                          <span>批次号：{traceability.batchNo}</span>
-                          <span>采收日期：{traceability.harvestDate}</span>
-                        </div>
-                        <div className="trace-certs">
-                          {traceability.certifications.map((cert) => (
-                            <span key={cert} className="badge badge-fresh">
-                              <Award size={12} />
-                              {cert}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="trace-info-card">
-                      <h4>
-                        <Sprout size={17} />
-                        种植 / 养殖主体
-                      </h4>
-                      <p className="trace-grower">
-                        <strong>{traceability.grower}</strong>
-                        <span className="trace-grower-origin">
-                          <MapPin size={13} />
-                          {product.origin}
-                        </span>
-                      </p>
-                      <p>{traceability.growerIntro}</p>
-                      <p className="trace-method">{traceability.plantingMethod}</p>
-                    </div>
-
-                    <div className="trace-info-card">
-                      <h4>
-                        <ClipboardCheck size={17} />
-                        质检报告
-                      </h4>
-                      <p>检测机构：{traceability.inspection.agency}</p>
-                      <p>
-                        报告编号：{traceability.inspection.reportNo} · {traceability.inspection.date}
-                      </p>
-                      <div className="trace-inspection-items">
-                        {traceability.inspection.items.map((item) => (
-                          <span key={item}>{item}</span>
-                        ))}
-                      </div>
-                      <span className="trace-inspection-result">
-                        <ShieldCheck size={14} />
-                        {traceability.inspection.result}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="trace-timeline-card">
-                    <h4>
-                      <Route size={17} />
-                      流通链路（产地直发，全程可追溯）
-                    </h4>
-                    <ol className="trace-timeline">
-                      {traceability.steps.map((step, index) => {
-                        const StepIcon = [Sprout, PackageCheck, ClipboardCheck, Truck, Warehouse][index] ?? Truck;
-                        return (
-                          <li key={step.title} className="trace-step">
-                            <span className="trace-step-icon">
-                              <StepIcon size={17} />
-                            </span>
-                            <div className="trace-step-body">
-                              <div className="trace-step-head">
-                                <strong>{step.title}</strong>
-                                <time>{step.time}</time>
-                              </div>
-                              <p>{step.desc}</p>
-                              <span className="trace-step-location">
-                                <MapPin size={12} />
-                                {step.location}
-                              </span>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </div>
-                </>
+                <div className="empty-state compact">
+                  <Leaf size={36} />
+                  <p style={{ color: 'var(--color-neutral-600)', marginTop: 'var(--space-2)' }}>
+                    产地溯源信息已升级为独立页面
+                  </p>
+                  <Link
+                    to={`/trace/${traceability.traceCode}`}
+                    className="btn btn-primary"
+                    style={{ marginTop: 'var(--space-4)' }}
+                  >
+                    查看溯源详情
+                  </Link>
+                </div>
               ) : (
                 <div className="empty-state compact">
                   <p>暂无溯源信息</p>

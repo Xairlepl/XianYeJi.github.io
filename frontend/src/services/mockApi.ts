@@ -318,6 +318,25 @@ export const mockApi = {
     });
   },
 
+  async getTraceabilityByCode(traceCode: string) {
+    await wait();
+    // 溯源码格式: XYJ + 2位categoryId + 4位productId + 2位day
+    if (!/^XYJ\d{8}$/.test(traceCode)) {
+      return clone({ product: null, traceability: null });
+    }
+    const productId = parseInt(traceCode.substring(5, 9), 10);
+    const product = products.find((item) => item.id === productId);
+    if (!product) {
+      return clone({ product: null, traceability: null });
+    }
+    // 重新生成溯源信息以校验溯源码完整匹配
+    const generated = buildTraceability(product);
+    if (generated.traceCode !== traceCode) {
+      return clone({ product: null, traceability: null });
+    }
+    return clone({ product, traceability: generated });
+  },
+
   async getCustomerServiceConversation(productId: number) {
     await wait(240);
     const customer = requireCustomer();
