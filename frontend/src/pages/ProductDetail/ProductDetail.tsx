@@ -21,14 +21,18 @@ import {
   PackageCheck,
   Warehouse,
   Route,
+  MessageCircle,
+  Send,
+  Store,
 } from 'lucide-react';
 import { mockApi } from '@/services/mockApi';
 import { useCartStore } from '@/store/cartStore';
 import { useToastStore } from '@/store/toastStore';
 import { useFavoriteStore } from '@/store/favoriteStore';
+import { useAuthStore } from '@/store/authStore';
 import ProductCard from '@/components/ProductCard/ProductCard';
 import StarRating from '@/components/common/StarRating/StarRating';
-import type { Product, ProductReview, Traceability } from '@/types';
+import type { Product, ProductReview, ServiceConversation, Traceability } from '@/types';
 import { setProductImageFallback } from '@/utils/imageFallback';
 import './ProductDetail.css';
 
@@ -43,10 +47,16 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState<'detail' | 'origin' | 'reviews'>('detail');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<'cart' | 'buy' | null>(null);
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [serviceConversation, setServiceConversation] = useState<ServiceConversation | null>(null);
+  const [serviceInput, setServiceInput] = useState('');
+  const [serviceLoading, setServiceLoading] = useState(false);
+  const [serviceSending, setServiceSending] = useState(false);
 
   const addToCart = useCartStore((state) => state.addItem);
   const showToast = useToastStore((state) => state.show);
   const { toggle: toggleFavorite, isFavorite } = useFavoriteStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     let mounted = true;
@@ -59,6 +69,9 @@ const ProductDetail = () => {
       setReviews(data.reviews);
       setTraceability(data.traceability);
       setQuantity(1);
+      setServiceOpen(false);
+      setServiceConversation(null);
+      setServiceInput('');
       setLoading(false);
     });
 
@@ -92,6 +105,54 @@ const ProductDetail = () => {
     } catch (error) {
       showToast(error instanceof Error ? error.message : '创建订单失败', 'error');
       setActionLoading(null);
+    }
+  };
+
+  const handleOpenService = async () => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      showToast('请先登录会员账号后咨询商家客服', 'info');
+      navigate('/login');
+      return;
+    }
+    if (user?.role !== 'CUSTOMER') {
+      showToast('商家客服咨询仅面向会员账号开放', 'info');
+      return;
+    }
+
+    const nextOpen = !serviceOpen;
+    setServiceOpen(nextOpen);
+    if (!nextOpen || serviceConversation) return;
+
+    setServiceLoading(true);
+    try {
+      const conversation = await mockApi.getCustomerServiceConversation(product.id);
+      setServiceConversation(conversation);
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : '客服会话加载失败', 'error');
+    } finally {
+      setServiceLoading(false);
+    }
+  };
+
+  const handleSendServiceMessage = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!product || !serviceInput.trim() || serviceSending) return;
+    if (!isAuthenticated || user?.role !== 'CUSTOMER') {
+      showToast('请先登录会员账号后咨询商家客服', 'info');
+      return;
+    }
+
+    setServiceSending(true);
+    try {
+      const conversation = await mockApi.sendCustomerServiceMessage(product.id, serviceInput);
+      setServiceConversation(conversation);
+      setServiceInput('');
+      showToast('问题已发送给商家客服', 'success');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : '发送失败，请稍后重试', 'error');
+    } finally {
+      setServiceSending(false);
     }
   };
 
@@ -271,6 +332,14 @@ const ProductDetail = () => {
               )}
             </button>
             <button
+              className="btn btn-secondary btn-lg detail-service-btn"
+              onClick={handleOpenService}
+              disabled={actionLoading !== null || serviceLoading}
+            >
+              <MessageCircle size={18} />
+              {serviceLoading && serviceOpen ? '加载中...' : '咨询客服'}
+            </button>
+            <button
               className={`btn btn-secondary btn-lg detail-fav-btn ${favorite ? 'active' : ''}`}
               onClick={() => {
                 toggleFavorite(product.id);
@@ -282,6 +351,58 @@ const ProductDetail = () => {
               <Heart size={20} fill={favorite ? 'currentColor' : 'none'} />
             </button>
           </div>
+
+          {serviceOpen && (
+            <section className="detail-service-panel" aria-label="商家客服咨询">
+              <div className="service-panel-header">
+                <span className="service-panel-icon">
+                  <Store size={18} />
+                </span>
+                <div>
+                  <h3>{product.sellerName} 客服</h3>
+                  <p>围绕「{product.name}」向商家咨询</p>
+                </div>
+              </div>
+
+              <div className="service-message-list">
+                {serviceLoading ? (
+                  <div className="service-empty">正在加载客服会话...</div>
+                ) : serviceConversation && serviceConversation.messages.length > 0 ? (
+                  serviceConversation.messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`service-message ${message.senderRole === 'CUSTOMER' ? 'customer' : 'seller'}`}
+                    >
+                      <div className="service-message-meta">
+                        <strong>{message.senderName}</strong>
+                        <time>{message.createdAt}</time>
+                      </div>
+                      <p>{message.content}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="service-empty">暂无咨询记录，可以直接向商家提问</div>
+                )}
+              </div>
+
+              <form className="service-input-row" onSubmit={handleSendServiceMessage}>
+                <input
+                  value={serviceInput}
+                  onChange={(event) => setServiceInput(event.target.value)}
+                  placeholder="输入想咨询的问题，如发货时间、规格、保鲜方式"
+                  disabled={serviceSending}
+                />
+                <button
+                  type="submit"
+                  className="btn btn-accent btn-sm"
+                  disabled={!serviceInput.trim() || serviceSending}
+                >
+                  <Send size={14} />
+                  {serviceSending ? '发送中' : '发送'}
+                </button>
+              </form>
+            </section>
+          )}
 
           {/* Guarantees */}
           <div className="detail-guarantee">

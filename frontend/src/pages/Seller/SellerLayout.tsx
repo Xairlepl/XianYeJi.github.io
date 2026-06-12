@@ -7,6 +7,7 @@ import {
   Store,
   LogOut,
   ShoppingBasket,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
@@ -16,6 +17,7 @@ const navItems = [
   { to: '/seller', label: '经营工作台', Icon: LayoutDashboard, end: true },
   { to: '/seller/products', label: '我的商品', Icon: Package, end: false },
   { to: '/seller/orders', label: '店铺订单', Icon: ClipboardList, end: false },
+  { to: '/seller/service', label: '商家客服', Icon: MessageCircle, end: false },
 ];
 
 const SellerLayout = () => {

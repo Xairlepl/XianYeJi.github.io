@@ -15,7 +15,17 @@ import {
   mockUser,
   mockUserAsset,
 } from '../data/mockData';
-import type { Address, CartItem, MockAccount, Order, Product, SellerApplication, User } from '../types';
+import type {
+  Address,
+  CartItem,
+  MockAccount,
+  Order,
+  Product,
+  SellerApplication,
+  ServiceConversation,
+  ServiceMessage,
+  User,
+} from '../types';
 
 export type ProductSort = 'default' | 'price-asc' | 'price-desc' | 'sales';
 export type OrderFilter = 'ALL' | Order['status'];
@@ -122,6 +132,29 @@ const saveApplications = () => {
   }
 };
 
+// ============ 商家客服会话（localStorage 持久化） ============
+const SERVICE_STORAGE_KEY = 'freshwild-service-conversations';
+
+const loadServiceConversations = (): ServiceConversation[] => {
+  try {
+    const raw = window.localStorage.getItem(SERVICE_STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as ServiceConversation[];
+  } catch {
+    // 本地数据损坏时回退到空会话列表
+  }
+  return [];
+};
+
+let serviceConversations = loadServiceConversations();
+
+const saveServiceConversations = () => {
+  try {
+    window.localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(serviceConversations));
+  } catch {
+    // 存储不可用时仅保留内存状态
+  }
+};
+
 // ============ API 级权限校验 ============
 const requireAdmin = () => {
   if (currentUser.role !== 'ADMIN') throw new Error('权限不足：该操作仅平台管理员可执行');
@@ -132,6 +165,13 @@ const requireSeller = (): { sellerId: number; shopName: string } => {
     throw new Error('权限不足：该操作仅入驻商家可执行');
   }
   return { sellerId: currentUser.sellerId, shopName: currentUser.shopName ?? currentUser.username };
+};
+
+const requireCustomer = (): User => {
+  if (currentUser.role !== 'CUSTOMER') {
+    throw new Error('请先以会员身份登录后咨询商家客服');
+  }
+  return currentUser;
 };
 
 let products: Product[] = structuredClone(mockProducts);
@@ -147,6 +187,8 @@ const wait = async (ms = 420) => {
 
 const clone = <T>(data: T): T => structuredClone(data);
 
+const nowString = () => new Date().toLocaleString('zh-CN', { hour12: false });
+
 const makeOrderNo = () => {
   const time = new Date();
   const stamp = [
@@ -159,6 +201,22 @@ const makeOrderNo = () => {
   ].join('');
   return `LY${stamp}${String(orders.length + 1).padStart(3, '0')}`;
 };
+
+const makeServiceMessage = (
+  senderRole: ServiceMessage['senderRole'],
+  senderName: string,
+  content: string
+): ServiceMessage => ({
+  id: Date.now() + Math.floor(Math.random() * 1000),
+  senderRole,
+  senderName,
+  content: content.trim(),
+  createdAt: nowString(),
+  read: false,
+});
+
+const sortServiceConversations = (list: ServiceConversation[]) =>
+  [...list].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
 const toOrderItem = (product: Product, quantity: number, id: number) => ({
   id,
@@ -258,6 +316,76 @@ export const mockApi = {
       reviews: mockReviews.filter((review) => review.productId === product.id),
       traceability: buildTraceability(product),
     });
+  },
+
+  async getCustomerServiceConversation(productId: number) {
+    await wait(240);
+    const customer = requireCustomer();
+    const product = products.find((item) => item.id === productId);
+    if (!product) throw new Error('商品不存在');
+
+    const conversation = serviceConversations.find(
+      (item) =>
+        item.customerId === customer.id &&
+        item.sellerId === product.sellerId &&
+        item.productId === product.id
+    );
+
+    if (conversation) {
+      conversation.messages = conversation.messages.map((message) =>
+        message.senderRole === 'SELLER' ? { ...message, read: true } : message
+      );
+      saveServiceConversations();
+    }
+
+    return clone(conversation ?? null);
+  },
+
+  async sendCustomerServiceMessage(productId: number, content: string) {
+    await wait(360);
+    const customer = requireCustomer();
+    const messageContent = content.trim();
+    if (!messageContent) throw new Error('请输入要咨询的问题');
+
+    const product = products.find((item) => item.id === productId);
+    if (!product) throw new Error('商品不存在');
+
+    const now = nowString();
+    let conversation = serviceConversations.find(
+      (item) =>
+        item.customerId === customer.id &&
+        item.sellerId === product.sellerId &&
+        item.productId === product.id
+    );
+    const message = makeServiceMessage('CUSTOMER', customer.username, messageContent);
+
+    if (conversation) {
+      conversation.sellerName = product.sellerName;
+      conversation.productName = product.name;
+      conversation.productImage = product.coverImage;
+      conversation.status = 'OPEN';
+      conversation.updatedAt = now;
+      conversation.messages = [...conversation.messages, message];
+    } else {
+      conversation = {
+        id: Math.max(0, ...serviceConversations.map((item) => item.id)) + 1,
+        customerId: customer.id,
+        customerName: customer.username,
+        sellerId: product.sellerId,
+        sellerName: product.sellerName,
+        productId: product.id,
+        productName: product.name,
+        productImage: product.coverImage,
+        status: 'OPEN',
+        createdAt: now,
+        updatedAt: now,
+        messages: [message],
+      };
+      serviceConversations = [conversation, ...serviceConversations];
+    }
+
+    saveServiceConversations();
+    return clone(conversation);
   },
 
   async getCart() {
@@ -767,6 +895,46 @@ export const mockApi = {
 
     orders = orders.map((order) => (order.id === orderId ? { ...order, status: 'SHIPPED' as const } : order));
     return clone({ success: true });
+  },
+
+  async getSellerServiceConversations() {
+    await wait(320);
+    const { sellerId } = requireSeller();
+    return clone(sortServiceConversations(serviceConversations.filter((item) => item.sellerId === sellerId)));
+  },
+
+  async getSellerServiceConversation(conversationId: number) {
+    await wait(220);
+    const { sellerId } = requireSeller();
+    const conversation = serviceConversations.find((item) => item.id === conversationId);
+    if (!conversation) throw new Error('客服会话不存在');
+    if (conversation.sellerId !== sellerId) throw new Error('无权查看其他店铺的客服会话');
+
+    conversation.messages = conversation.messages.map((message) =>
+      message.senderRole === 'CUSTOMER' ? { ...message, read: true } : message
+    );
+    saveServiceConversations();
+    return clone(conversation);
+  },
+
+  async sellerSendServiceReply(conversationId: number, content: string) {
+    await wait(360);
+    const { sellerId, shopName } = requireSeller();
+    const messageContent = content.trim();
+    if (!messageContent) throw new Error('请输入回复内容');
+
+    const conversation = serviceConversations.find((item) => item.id === conversationId);
+    if (!conversation) throw new Error('客服会话不存在');
+    if (conversation.sellerId !== sellerId) throw new Error('无权回复其他店铺的客服会话');
+
+    conversation.status = 'OPEN';
+    conversation.updatedAt = nowString();
+    conversation.messages = [
+      ...conversation.messages,
+      makeServiceMessage('SELLER', shopName, messageContent),
+    ];
+    saveServiceConversations();
+    return clone(conversation);
   },
 
   // ============ 商家入驻申请 ============

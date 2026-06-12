@@ -104,6 +104,31 @@ export interface SellerApplication {
   rejectReason?: string;
 }
 
+// 商家客服会话
+export interface ServiceMessage {
+  id: number;
+  senderRole: 'CUSTOMER' | 'SELLER';
+  senderName: string;
+  content: string;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface ServiceConversation {
+  id: number;
+  customerId: number;
+  customerName: string;
+  sellerId: number;
+  sellerName: string;
+  productId: number;
+  productName: string;
+  productImage: string;
+  status: 'OPEN' | 'CLOSED';
+  createdAt: string;
+  updatedAt: string;
+  messages: ServiceMessage[];
+}
+
 // 会员资产
 export interface UserAsset {
   points: number;

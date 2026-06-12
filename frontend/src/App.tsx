@@ -28,6 +28,7 @@ import SellerLayout from './pages/Seller/SellerLayout';
 import SellerDashboard from './pages/Seller/SellerDashboard';
 import SellerProducts from './pages/Seller/SellerProducts';
 import SellerOrders from './pages/Seller/SellerOrders';
+import SellerService from './pages/Seller/SellerService';
 import SellerApply from './pages/SellerApply/SellerApply';
 import './index.css';
 
@@ -56,6 +57,7 @@ function App() {
             <Route index element={<SellerDashboard />} />
             <Route path="products" element={<SellerProducts />} />
             <Route path="orders" element={<SellerOrders />} />
+            <Route path="service" element={<SellerService />} />
           </Route>
 
           {/* Main layout with header/footer */}
