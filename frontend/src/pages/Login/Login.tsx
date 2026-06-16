@@ -1,9 +1,42 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Wheat, Sprout, Truck, Wallet, ArrowLeft, ShieldCheck, UserRound, Store } from 'lucide-react';
+import {
+  ArrowLeft,
+  BadgeCheck,
+  LockKeyhole,
+  Phone,
+  ShieldCheck,
+  Sprout,
+  Store,
+  Truck,
+  UserRound,
+  Wallet,
+  Wheat,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastStore } from '@/store/toastStore';
 import './Login.css';
+
+const demoAccounts = [
+  {
+    label: '管理员',
+    username: 'admin',
+    password: 'admin123',
+    Icon: ShieldCheck,
+  },
+  {
+    label: '会员',
+    username: '张三',
+    password: '123456',
+    Icon: UserRound,
+  },
+  {
+    label: '商家',
+    username: '果园王五',
+    password: '123456',
+    Icon: Store,
+  },
+];
 
 const Login = () => {
   const navigate = useNavigate();
@@ -39,101 +72,150 @@ const Login = () => {
 
   const fillDemo = (username: string, password: string) => {
     setIsLogin(true);
-    setForm({ ...form, username, password });
+    setForm((current) => ({ ...current, username, password }));
   };
 
   return (
     <main className="login-page" id="login-page">
-      <div className="login-container">
-        {/* Left visual */}
-        <div className="login-visual">
-          <div className="login-visual-content">
-            <span className="login-visual-icon">
-              <Wheat size={56} />
+      <div className="login-shell">
+        <section className="login-visual" aria-label="鲜野集">
+          <div className="login-visual-overlay" />
+          <div className="login-brand">
+            <span className="login-brand-mark">
+              <Wheat size={34} />
             </span>
-            <h2>鲜野集</h2>
-            <p>原生态农产品 · 产地直发</p>
-            <div className="login-visual-features">
-              <div className="visual-feature">
-                <span className="visual-feature-icon">
-                  <Sprout size={18} />
-                </span>
-                <span>精选全国原生态农产品</span>
-              </div>
-              <div className="visual-feature">
-                <span className="visual-feature-icon">
-                  <Truck size={18} />
-                </span>
-                <span>产地直发 · 48小时送达</span>
-              </div>
-              <div className="visual-feature">
-                <span className="visual-feature-icon">
-                  <Wallet size={18} />
-                </span>
-                <span>新人注册享专属优惠</span>
-              </div>
+            <div>
+              <strong>鲜野集</strong>
+              <span>产地直发 · 当季严选</span>
             </div>
           </div>
-        </div>
 
-        {/* Right form */}
-        <div className="login-form-wrapper">
+          <div className="login-visual-content">
+            <span className="login-kicker">Fresh Origin Market</span>
+            <h1>把产地的新鲜，带回你的餐桌</h1>
+            <p>精选合作基地农产品，统一分级、冷链履约、批次可追溯。</p>
+          </div>
+
+          <div className="login-feature-grid">
+            <div className="visual-feature">
+              <Sprout size={18} />
+              <span>产地直采</span>
+            </div>
+            <div className="visual-feature">
+              <Truck size={18} />
+              <span>冷链配送</span>
+            </div>
+            <div className="visual-feature">
+              <BadgeCheck size={18} />
+              <span>批次溯源</span>
+            </div>
+            <div className="visual-feature">
+              <Wallet size={18} />
+              <span>会员优惠</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="login-panel" aria-labelledby="login-title">
+          <div className="login-panel-top">
+            <Link to="/" className="back-home">
+              <ArrowLeft size={16} />
+              返回首页
+            </Link>
+          </div>
+
           <div className="login-form-header">
-            <h1>{isLogin ? '欢迎回来' : '创建账号'}</h1>
-            <p>{isLogin ? '登录您的鲜野集账号' : '注册成为鲜野集会员'}</p>
+            <span className="login-form-eyebrow">{isLogin ? 'Welcome back' : 'Create account'}</span>
+            <h2 id="login-title">{isLogin ? '欢迎回来' : '创建鲜野集账号'}</h2>
+            <p>{isLogin ? '登录后查看订单、优惠券和收藏清单。' : '注册后即可领取新人权益并开始选购。'}</p>
+          </div>
+
+          <div className="login-mode-switch" role="tablist" aria-label="账号操作">
+            <button
+              type="button"
+              className={isLogin ? 'active' : ''}
+              onClick={() => setIsLogin(true)}
+              disabled={loading}
+              role="tab"
+              aria-selected={isLogin}
+            >
+              登录
+            </button>
+            <button
+              type="button"
+              className={!isLogin ? 'active' : ''}
+              onClick={() => setIsLogin(false)}
+              disabled={loading}
+              role="tab"
+              aria-selected={!isLogin}
+            >
+              注册
+            </button>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="username">用户名</label>
-              <input
-                id="username"
-                type="text"
-                placeholder="请输入用户名"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                required
-              />
-            </div>
-
-            {!isLogin && (
-              <div className="form-group">
-                <label htmlFor="phone">手机号</label>
+            <label className="form-field" htmlFor="username">
+              <span>用户名</span>
+              <div className="input-shell">
+                <UserRound size={18} />
                 <input
-                  id="phone"
-                  type="tel"
-                  placeholder="请输入手机号"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  id="username"
+                  type="text"
+                  placeholder="请输入用户名"
+                  value={form.username}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
                 />
               </div>
+            </label>
+
+            {!isLogin && (
+              <label className="form-field" htmlFor="phone">
+                <span>手机号</span>
+                <div className="input-shell">
+                  <Phone size={18} />
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder="请输入 11 位手机号"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    required
+                  />
+                </div>
+              </label>
             )}
 
-            <div className="form-group">
-              <label htmlFor="password">密码</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="请输入密码"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
-            </div>
-
-            {!isLogin && (
-              <div className="form-group">
-                <label htmlFor="confirmPassword">确认密码</label>
+            <label className="form-field" htmlFor="password">
+              <span>密码</span>
+              <div className="input-shell">
+                <LockKeyhole size={18} />
                 <input
-                  id="confirmPassword"
+                  id="password"
                   type="password"
-                  placeholder="请再次输入密码"
-                  value={form.confirmPassword}
-                  onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                  placeholder="请输入密码"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                 />
               </div>
+            </label>
+
+            {!isLogin && (
+              <label className="form-field" htmlFor="confirmPassword">
+                <span>确认密码</span>
+                <div className="input-shell">
+                  <LockKeyhole size={18} />
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="请再次输入密码"
+                    value={form.confirmPassword}
+                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                    required
+                  />
+                </div>
+              </label>
             )}
 
             <button
@@ -142,46 +224,34 @@ const Login = () => {
               id="login-submit"
               disabled={loading}
             >
-              {loading ? '模拟请求中...' : isLogin ? '登 录' : '注 册'}
+              {loading ? '正在提交...' : isLogin ? '登录账号' : '注册账号'}
             </button>
           </form>
 
-          <div className="login-demo">
-            <span className="login-demo-title">演示账号一键填充</span>
-            <div className="login-demo-list">
-              <button type="button" className="login-demo-btn" onClick={() => fillDemo('admin', 'admin123')} disabled={loading}>
-                <ShieldCheck size={14} />
-                管理员 admin / admin123
-              </button>
-              <button type="button" className="login-demo-btn" onClick={() => fillDemo('张三', '123456')} disabled={loading}>
-                <UserRound size={14} />
-                会员 张三 / 123456
-              </button>
-              <button type="button" className="login-demo-btn" onClick={() => fillDemo('果园王五', '123456')} disabled={loading}>
-                <Store size={14} />
-                商家 果园王五 / 123456
-              </button>
+          {isLogin && (
+            <div className="login-demo" aria-label="演示账号">
+              <div className="login-demo-head">
+                <span>演示账号</span>
+                <small>一键填入</small>
+              </div>
+              <div className="login-demo-list">
+                {demoAccounts.map(({ label, username, password, Icon }) => (
+                  <button
+                    type="button"
+                    className="login-demo-btn"
+                    onClick={() => fillDemo(username, password)}
+                    disabled={loading}
+                    key={label}
+                  >
+                    <Icon size={15} />
+                    <span>{label}</span>
+                    <strong>{username}</strong>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className="login-switch">
-            <span>{isLogin ? '还没有账号？' : '已有账号？'}</span>
-            <button
-              className="switch-btn"
-              onClick={() => {
-                setIsLogin(!isLogin);
-              }}
-              disabled={loading}
-            >
-              {isLogin ? '立即注册' : '去登录'}
-            </button>
-          </div>
-
-          <Link to="/" className="back-home">
-            <ArrowLeft size={14} />
-            返回首页
-          </Link>
-        </div>
+          )}
+        </section>
       </div>
     </main>
   );
