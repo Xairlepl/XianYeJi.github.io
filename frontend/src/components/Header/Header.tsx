@@ -17,6 +17,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const cartCount = useCartStore((state) => state.count);
   const refreshCart = useCartStore((state) => state.refreshCount);
@@ -25,6 +26,19 @@ const Header = () => {
   useEffect(() => {
     refreshCart();
   }, [location.pathname, refreshCart]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      } else {
+        setScrollProgress(0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const isActiveLink = (path: string) => {
     const [pathname, query] = path.split('?');
@@ -65,6 +79,29 @@ const Header = () => {
               {link.label}
             </Link>
           ))}
+          {/* Mobile-only portal links */}
+          {isAuthenticated && user?.role === 'ADMIN' && (
+            <Link to="/admin" className="nav-link mobile-only-link" onClick={() => setMobileMenuOpen(false)}>
+              <ShieldCheck size={16} />
+              管理后台
+            </Link>
+          )}
+          {isAuthenticated && user?.role === 'SELLER' && (
+            <Link to="/seller" className="nav-link mobile-only-link" onClick={() => setMobileMenuOpen(false)}>
+              <Store size={16} />
+              商家中心
+            </Link>
+          )}
+          {isAuthenticated && user ? (
+            <div className="nav-user-mobile mobile-only-link">
+              <User size={16} />
+              <span>账号: {user.username}</span>
+            </div>
+          ) : (
+            <Link to="/login" className="nav-link mobile-only-link login-highlight" onClick={() => setMobileMenuOpen(false)}>
+              登录账号
+            </Link>
+          )}
         </nav>
 
         <form className="header-search" id="header-search" onSubmit={handleSearch}>
@@ -143,6 +180,9 @@ const Header = () => {
           搜索
         </button>
       </form>
+
+      {/* 页面滚动进度条 */}
+      <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }} />
     </header>
   );
 };

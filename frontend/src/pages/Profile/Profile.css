@@ -399,14 +399,59 @@
 @media (max-width: 768px) {
   .profile-layout {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .profile-user-card {
+    padding: var(--space-5) var(--space-4) !important;
+    margin-bottom: var(--space-3) !important;
+  }
+
+  .profile-avatar {
+    width: 64px !important;
+    height: 64px !important;
+    margin-bottom: var(--space-3) !important;
+  }
+
+  .avatar-placeholder {
+    font-size: var(--text-2xl) !important;
   }
 
   .profile-stats {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3) !important;
+    margin-bottom: var(--space-5) !important;
   }
 
-  .profile-assets,
+  .stat-item {
+    padding: var(--space-3) !important;
+  }
+
+  .stat-value {
+    font-size: var(--text-xl) !important;
+  }
+
+  .profile-assets {
+    grid-template-columns: 1fr;
+    gap: var(--space-3) !important;
+    margin-bottom: var(--space-5) !important;
+  }
+
+  .asset-card {
+    padding: var(--space-4) !important;
+  }
+
   .profile-two-col {
     grid-template-columns: 1fr;
+    gap: var(--space-4) !important;
+  }
+
+  .profile-panel {
+    padding: var(--space-4) !important;
+  }
+
+  .favorite-item img {
+    width: 64px !important;
+    height: 64px !important;
   }
 }

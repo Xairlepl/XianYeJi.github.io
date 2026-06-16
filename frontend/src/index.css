@@ -313,6 +313,21 @@ select {
   }
 }
 
+@keyframes springIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  60% {
+    opacity: 0.9;
+    transform: scale(1.015) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -339,16 +354,27 @@ select {
   0%,
   100% {
     transform: scale(1);
+    box-shadow: 0 4px 12px rgba(35, 116, 49, 0.1);
   }
 
   50% {
     transform: scale(1.04);
+    box-shadow: 0 8px 24px rgba(35, 116, 49, 0.22);
   }
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
@@ -476,20 +502,23 @@ select {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(20, 26, 19, 0.02);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-neutral-300);
   border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neutral-400);
+  background: var(--color-primary-400);
 }
 
 ::selection {
